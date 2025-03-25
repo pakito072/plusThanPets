@@ -1,6 +1,55 @@
-composer.phar
-/vendor/
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Commit your application's lock file https://getcomposer.org/doc/01-basic-usage.md#commit-your-composer-lock-file-to-version-control
-# You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
-# composer.lock
+# Composer (PHP)
+vendor/
+composer.lock
+composer.phar
+
+# Editor de VS Code
+.vscode/
+*.code-workspace
+
+# React (Vite, Create React App, Next.js)
+build/
+dist/
+.cache/
+.next/
+out/
+.env
+.env.local
+.env.*.local
+
+# TailwindCSS (si usas JIT mode)
+tailwind.config.js
+tailwind.config.cjs
+postcss.config.js
+
+# Logs y Reportes
+logs
+*.log
+*.gz
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencias e Instaladores
+.DS_Store
+Thumbs.db
+
+# Archivos de pruebas o cobertura
+coverage/
+*.snap
+
+# Otros
+.idea/
+*.iml
+.eslintcache
+stylelint.cache
