@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 
-// Este archivo ha sido renombrado a DonnorSection.jsx. Elimina este archivo si ya no es necesario.
-
-export default function DonarSection() {
+export default function DonnorSection() {
   const [form, setForm] = useState({
     type: '',
     name: '',
@@ -27,7 +25,20 @@ export default function DonarSection() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)
     });
-    if (res.ok) setSuccess(true);
+    if (res.ok) {
+      setSuccess(true);
+      setForm({
+        type: '',
+        name: '',
+        breed: '',
+        age: '',
+        gender: '',
+        description: '',
+        image_url: '',
+        location_lat: '',
+        location_lng: ''
+      });
+    }
   };
 
   return (

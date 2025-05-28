@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CarouselHeader from './components/CarouselHeader';
 import Footer from './components/Footer';
 import HomeSection from './sections/HomeSection';
 import AdoptarSection from './sections/AdoptarSection';
-import DonarSection from './sections/DonarSection';
+import DonnorSection from './sections/DonnorSection';
 import PerfilSection from './sections/PerfilSection';
 import SideMenu from './components/SideMenu';
 import AuthModal from './components/AuthModal';
@@ -13,24 +13,32 @@ function App() {
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [authMessage, setAuthMessage] = useState(null); // { type: 'success'|'error', text: string }
+  const [logoutModal, setLogoutModal] = useState(false);
+
+  // Autologin al cargar la app
+  useEffect(() => {
+    fetch('/api/users/me', { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data) setUser(data); });
+  }, []);
 
   const handleAuth = async (data) => {
     setAuthMessage(null);
     try {
-      // Simulación de llamada al backend
-      // Reemplaza esto por tu fetch real
       let response;
       if (data.mode === 'login') {
         response = await fetch('/api/users/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: data.email, password: data.password })
+          body: JSON.stringify({ email: data.email, password: data.password }),
+          credentials: 'include'
         });
       } else {
         response = await fetch('/api/users/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: data.name, email: data.email, password: data.password })
+          body: JSON.stringify({ username: data.username, email: data.email, password: data.password, gender: data.gender }),
+          credentials: 'include'
         });
       }
       const result = await response.json();
@@ -46,14 +54,49 @@ function App() {
     }
   };
 
+  // Cierre de sesión con confirmación visual (modal)
+  const handleLogout = async () => {
+    await fetch('/api/users/logout', { method: 'POST', credentials: 'include' });
+    setUser(null);
+    setAuthMessage({ type: 'success', text: 'Sesión cerrada correctamente' });
+    setLogoutModal(false);
+    setTimeout(() => setAuthMessage(null), 1500);
+  };
+
+  // Pasar función especial al SideMenu para mostrar el modal
+  const handleAuthModal = () => {
+    if (user) {
+      setLogoutModal(true);
+    } else {
+      setAuthOpen(true);
+    }
+  };
+
   return (
     <div className="app">
-      <SideMenu onSelect={setSection} selected={section} onAuthModal={() => setAuthOpen(true)} user={user} />
+      <SideMenu
+        onSelect={setSection}
+        selected={section}
+        onAuthModal={handleAuthModal}
+        user={user}
+      />
+      {logoutModal && (
+        <div className="logout-modal-backdrop">
+          <div className="logout-modal">
+            <h3>¿Cerrar sesión?</h3>
+            <p>¿Seguro que quieres cerrar tu sesión?</p>
+            <div className="logout-modal-actions">
+              <button className="logout-btn-confirm" onClick={handleLogout}>Sí, cerrar sesión</button>
+              <button className="logout-btn-cancel" onClick={() => setLogoutModal(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
       <CarouselHeader />
       <main>
         {section === 'home' && <HomeSection />}
         {section === 'adoptar' && <AdoptarSection />}
-        {section === 'donar' && <DonarSection />}
+        {section === 'donnor' && <DonnorSection />}
         {section === 'perfil' && <PerfilSection />}
       </main>
       <Footer />

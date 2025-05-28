@@ -71,6 +71,8 @@ export default function AuthModal({ open, onClose, onAuth, message }) {
     if (Object.keys(newErrors).length > 0) return;
     try {
       await onAuth({ ...form, mode });
+      // Limpiar los campos tras registro/login exitoso
+      setForm({ username: '', email: '', password: '', gender: '' });
     } catch (err) {
       if (err.fields) setErrors(err.fields);
       else setErrors({ general: err.message || 'Error de autenticación' });

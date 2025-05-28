@@ -1,13 +1,29 @@
 import React from 'react';
 
 const NAV_ITEMS = [
-  { key: 'home', label: 'Inicio', icon: <span className="material-icons">home</span> },
-  { key: 'adoptar', label: 'Adoptar', icon: <span className="material-icons">pets</span> },
-  { key: 'donar', label: 'Donar', icon: <span className="material-icons">volunteer_activism</span> },
-  { key: 'perfil', label: 'Perfil', icon: <span className="material-icons">person</span> },
+  {
+    key: 'home',
+    label: 'Inicio',
+    icon: <span className="proicons--home" />
+  },
+  {
+    key: 'adoptar',
+    label: 'Adoptar',
+    icon: <span className="mdi--heart-outline" />
+  },
+  {
+    key: 'donar',
+    label: 'Donar',
+    icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} />
+  },
+  {
+    key: 'perfil',
+    label: 'Perfil',
+    icon: <span className="ri--user-line" />
+  },
 ];
 
-export default function SideMenu({ onSelect, selected, onAuthModal }) {
+export default function SideMenu({ onSelect, selected, onAuthModal, user }) {
   return (
     <nav className="navbar-lateral">
       <ul className="navbar-lateral-items">
@@ -30,9 +46,9 @@ export default function SideMenu({ onSelect, selected, onAuthModal }) {
         <li className="navbar-lateral-item navbar-lateral-login" style={{ marginBottom: '1.5em' }} onClick={onAuthModal}>
           <a className="navbar-lateral-item-inner">
             <span className="navbar-lateral-item-icon">
-              <svg width="1.8em" height="1.8em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.75 9V5.75A2.75 2.75 0 0013 3H6.75A2.75 2.75 0 004 5.75v12.5A2.75 2.75 0 006.75 21H13a2.75 2.75 0 002.75-2.75V15" stroke="#ffcf8e" strokeWidth="1.5" /><path d="M19 12l-7 0" stroke="#ffcf8e" strokeWidth="1.5" strokeLinecap="round" /><path d="M16.5 9.5L19 12l-2.5 2.5" stroke="#ffcf8e" strokeWidth="1.5" strokeLinecap="round" /></svg>
+              <span className="line-md--log-out" />
             </span>
-            <span className="navbar-lateral-link-text">Iniciar sesión</span>
+            <span className="navbar-lateral-link-text">{user ? 'Cerrar sesión' : 'Iniciar sesión'}</span>
           </a>
         </li>
       </ul>
