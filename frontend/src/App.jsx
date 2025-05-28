@@ -95,9 +95,19 @@ function App() {
       <CarouselHeader />
       <main>
         {section === 'home' && <HomeSection />}
-        {section === 'adoptar' && <AdoptarSection />}
-        {section === 'donnor' && <DonnorSection />}
-        {section === 'perfil' && <PerfilSection />}
+        {['adoptar', 'donnor', 'perfil'].includes(section) && !user ? (
+          <div className="restricted-section-msg">
+            <h2>Acceso restringido</h2>
+            <p>Debes iniciar sesión para acceder a esta sección.</p>
+            <button className="auth-modal-submit" onClick={() => setAuthOpen(true)}>Iniciar sesión</button>
+          </div>
+        ) : (
+          <>
+            {section === 'adoptar' && <AdoptarSection />}
+            {section === 'donnor' && <DonnorSection />}
+            {section === 'perfil' && <PerfilSection />}
+          </>
+        )}
       </main>
       <Footer />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onAuth={handleAuth} message={authMessage} />

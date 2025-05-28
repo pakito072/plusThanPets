@@ -12,7 +12,7 @@ const NAV_ITEMS = [
     icon: <span className="mdi--heart-outline" />
   },
   {
-    key: 'donar',
+    key: 'donnor',
     label: 'Donar',
     icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} />
   },
