@@ -186,11 +186,11 @@ export default function DonnorSection() {
     <section className="donar-section" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
       <h1 className="section-title">Donar</h1>
       <div
-        className="donnor-add-card" // Cambia la clase para usar los nuevos estilos
+        className="donnor-add-card"
         onClick={() => setShowModal(true)}
       >
-        <span className="icon-park-solid--add" style={{ color: '#a05a2c', marginBottom: 18 }} />
         <span style={{ color: '#a05a2c', fontWeight: 900, fontSize: '1.18rem', textAlign: 'center' }}>Añadir ficha de donación</span>
+        <span className="basil--add-outline" style={{ color: '#a05a2c', marginTop: 8 }} />
       </div>
       {/* Grid de animales donados por el usuario */}
       <div className="adoptar-grid" style={{ marginTop: 32, marginBottom: 24 }}>
