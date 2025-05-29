@@ -40,9 +40,9 @@ export default function SideMenu({ onSelect, selected, onAuthModal, user }) {
         {NAV_ITEMS.map(item => (
           <li key={item.key} className={`navbar-lateral-item${selected === item.key ? ' active' : ''}`}
             onClick={() => onSelect(item.key)}>
-            <a className="navbar-lateral-item-inner">
-              <span className="navbar-lateral-item-icon">{item.icon}</span>
-              <span className="navbar-lateral-link-text">{item.label}</span>
+            <a className="navbar-lateral-item-inner" style={{ justifyContent: 'center', paddingLeft: 0, paddingRight: 0 }}>
+              <span className="navbar-lateral-item-icon" style={{ marginRight: 0, minWidth: 24, display: 'flex', justifyContent: 'center' }}>{item.icon}</span>
+              <span className="navbar-lateral-link-text" style={{ marginLeft: 0 }}>{item.label}</span>
             </a>
           </li>
         ))}
