@@ -18,20 +18,7 @@ export default function LiveChatSection({ user, chatType }) {
   const [imageModal, setImageModal] = useState(null); // url de imagen ampliada
   const fileInputRef = useRef();
 
-  // Si no hay usuario, mostrar mensaje de acceso restringido
-  if (!user) {
-    return (
-      <div className="restricted-section-msg">
-        <h2>Acceso restringido</h2>
-        <p>Debes iniciar sesión para acceder a esta sección.</p>
-        <button className="auth-modal-submit" onClick={() => window.dispatchEvent(new CustomEvent('open-auth-modal'))}>
-          Iniciar sesión
-        </button>
-      </div>
-    );
-  }
-
-  // El resto de hooks deben ejecutarse siempre, pero su lógica puede depender de user
+  // Todos los hooks van aquí, antes de cualquier return condicional
   useEffect(() => {
     if (!user) return;
     fetch(`/api/chat/user/${user.id}`)
@@ -42,7 +29,6 @@ export default function LiveChatSection({ user, chatType }) {
       });
   }, [user]);
 
-  // Cargar historial de mensajes al seleccionar chat
   useEffect(() => {
     if (!activeChat) return;
     fetch(`/api/chat/room/${activeChat.room_id}/messages`)
@@ -235,6 +221,19 @@ export default function LiveChatSection({ user, chatType }) {
             </>
           )}
         </div>
+      </div>
+    );
+  }
+
+  // Si no hay usuario, mostrar mensaje de acceso restringido
+  if (!user) {
+    return (
+      <div className="restricted-section-msg">
+        <h2>Acceso restringido</h2>
+        <p>Debes iniciar sesión para acceder a esta sección.</p>
+        <button className="auth-modal-submit" onClick={() => window.dispatchEvent(new CustomEvent('open-auth-modal'))}>
+          Iniciar sesión
+        </button>
       </div>
     );
   }
