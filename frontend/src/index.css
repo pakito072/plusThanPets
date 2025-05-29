@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400..900&display=swap');
+
 body {
   margin: 0;
   font-family: 'Roboto', Arial, sans-serif;
@@ -54,17 +56,24 @@ body {
   justify-content: flex-end;
 }
 
+.playfair-display-carousel {
+  font-family: "Playfair Display", serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: italic;
+}
+
 .carousel-text {
   position: relative;
   z-index: 2;
-  background: rgba(255, 207, 142, 0.85); /* dorado translúcido */
-  color: #6f3619;
+  background: rgba(30, 24, 18, 0.82); /* fondo oscuro translúcido */
+  color: #fff8ef;
   padding: 1.5rem 2.5rem;
-  border-radius: 18px 0 0 0;
+  border-radius: 18px 0 18px 0; /* esquina inferior derecha redonda */
   margin: 0 2rem 2rem 0;
   max-width: 60vw;
   text-align: right;
-  font-size: 1.6rem;
+  font-size: 1.25rem; /* tamaño reducido */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   font-weight: bold;
 }
@@ -1540,6 +1549,7 @@ main {
 }
 
 .live-chat-placeholder {
+ 
   color: #a05a2c;
   opacity: 0.7;
   text-align: center;

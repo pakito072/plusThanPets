@@ -3,13 +3,19 @@ import { useState, useEffect, useRef } from 'react';
 const images = [
   'https://i.imgur.com/4u8iz2q.jpeg',
   'https://i.imgur.com/VbSVxW6.jpeg',
-  '/carrusel3.jpg'
+  'https://i.imgur.com/vttxscc.jpeg',
+  'https://i.imgur.com/8wBO8Ig.jpeg',
+  'https://i.imgur.com/455Drmj.jpeg',
+  'https://i.imgur.com/Z498UaJ.jpeg'
 ];
 
 const texts = [
   '¡Encuentra tu compañero ideal!',
   'Adoptar salva vidas.',
-  'Conectando corazones humanos y animales.'
+  'Conectando corazones humanos y animales.',
+  'Dales un hogar, gana un amigo fiel.',
+  'Tu amor puede cambiar su historia.',
+  'Juntos, comenzamos una nueva vida.'
 ];
 
 export default function CarouselHeader() {
@@ -37,7 +43,7 @@ export default function CarouselHeader() {
         {images.map((img, i) => (
           <div className="carousel-slide" key={i} style={{ backgroundImage: `url(${img})` }}>
             <div className="carousel-text">
-              <h2>{texts[i]}</h2>
+              <h2 className="playfair-display-carousel">{texts[i]}</h2>
             </div>
           </div>
         ))}
