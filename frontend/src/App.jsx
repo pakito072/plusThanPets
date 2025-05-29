@@ -23,6 +23,16 @@ function App() {
       .then(data => { if (data) setUser(data); });
   }, []);
 
+  useEffect(() => {
+    function openAuthModalListener() {
+      if (typeof window.setAuthOpen === 'function') {
+        window.setAuthOpen(true);
+      }
+    }
+    window.addEventListener('open-auth-modal', openAuthModalListener);
+    return () => window.removeEventListener('open-auth-modal', openAuthModalListener);
+  }, []);
+
   const handleAuth = async (data) => {
     setAuthMessage(null);
     try {

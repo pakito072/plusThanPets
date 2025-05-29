@@ -5,6 +5,7 @@ import "../index.css";
 const socket = io("http://localhost:5000", { withCredentials: true });
 
 export default function LiveChatSection({ user, chatType }) {
+  // Hooks siempre al inicio
   const [adoptionChats, setAdoptionChats] = useState([]);
   const [donationChats, setDonationChats] = useState([]);
   const [activeChat, setActiveChat] = useState(null); // {room_id, ...}
@@ -17,7 +18,20 @@ export default function LiveChatSection({ user, chatType }) {
   const [imageModal, setImageModal] = useState(null); // url de imagen ampliada
   const fileInputRef = useRef();
 
-  // Cargar chats del usuario al entrar
+  // Si no hay usuario, mostrar mensaje de acceso restringido
+  if (!user) {
+    return (
+      <div className="restricted-section-msg">
+        <h2>Acceso restringido</h2>
+        <p>Debes iniciar sesión para acceder a esta sección.</p>
+        <button className="auth-modal-submit" onClick={() => window.dispatchEvent(new CustomEvent('open-auth-modal'))}>
+          Iniciar sesión
+        </button>
+      </div>
+    );
+  }
+
+  // El resto de hooks deben ejecutarse siempre, pero su lógica puede depender de user
   useEffect(() => {
     if (!user) return;
     fetch(`/api/chat/user/${user.id}`)
