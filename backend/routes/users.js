@@ -76,6 +76,37 @@ router.get("/me", (req, res) => {
   }
 });
 
+// Actualizar datos del usuario autenticado (incluye cambio de contraseña)
+router.put("/me", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "No autenticado" });
+  }
+  const userId = req.session.user.id;
+  const { username, gender, password } = req.body;
+  let sql = `UPDATE users SET username = ?, gender = ?`;
+  let params = [username, gender];
+  if (password && password.length >= 4) {
+    sql += `, password = ?`;
+    params.push(password);
+  }
+  sql += ` WHERE id = ?`;
+  params.push(userId);
+  db.query(sql, params, (err) => {
+    if (err)
+      return res.status(500).json({ error: "Error al actualizar usuario" });
+    db.query("SELECT * FROM users WHERE id = ?", [userId], (err2, results) => {
+      if (err2 || !results[0])
+        return res
+          .status(500)
+          .json({ error: "Error al obtener usuario actualizado" });
+      // No enviar la contraseña
+      const { password, ...userData } = results[0];
+      req.session.user = userData;
+      res.json(userData);
+    });
+  });
+});
+
 // Logout de usuario
 router.post("/logout", (req, res) => {
   req.session.destroy((err) => {

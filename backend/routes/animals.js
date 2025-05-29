@@ -93,4 +93,25 @@ router.get("/my-donated", (req, res) => {
   );
 });
 
+// Obtener adopciones del usuario autenticado
+router.get("/my-adoptions", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "No autenticado" });
+  }
+  const userId = req.session.user.id;
+  const sql = `
+    SELECT a.id as adoption_id, a.animal_id, a.date, a.status, a.message,
+           an.name as animal_name, an.type as animal_type
+    FROM adoptions a
+    JOIN animals an ON a.animal_id = an.id
+    WHERE a.adopter_id = ?
+    ORDER BY a.date DESC
+  `;
+  db.query(sql, [userId], (err, results) => {
+    if (err)
+      return res.status(500).json({ error: "Error al obtener adopciones" });
+    res.json(results);
+  });
+});
+
 module.exports = router;

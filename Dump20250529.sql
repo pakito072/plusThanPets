@@ -87,21 +87,19 @@ CREATE TABLE `animals` (
   `name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `breed` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `age` int DEFAULT NULL,
-  `gender` enum('male','female','other') COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `gender` enum('male','female') COLLATE utf8mb4_general_ci DEFAULT NULL,
   `description` text COLLATE utf8mb4_general_ci,
   `image_url` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `adopted_status` tinyint DEFAULT '1',
   `owner_id` int DEFAULT NULL,
   `adopted_by` int DEFAULT NULL,
-  `location_lat` decimal(9,6) DEFAULT NULL,
-  `location_lng` decimal(9,6) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `owner_id` (`owner_id`),
   KEY `adopted_by` (`adopted_by`),
   CONSTRAINT `animals_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
   CONSTRAINT `animals_ibfk_2` FOREIGN KEY (`adopted_by`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,6 +108,7 @@ CREATE TABLE `animals` (
 
 LOCK TABLES `animals` WRITE;
 /*!40000 ALTER TABLE `animals` DISABLE KEYS */;
+INSERT INTO `animals` VALUES (1,'cat','fsdfsdf','fsdfsdfs',12,'male','fdsdfsdfdsf','https://res.cloudinary.com/djwl7si04/image/upload/c_fill,g_auto,h_500,w_500/v1748504401/qrvacplzjwosgorkb4am.jpg',0,5,NULL,'2025-05-29 07:40:04');
 /*!40000 ALTER TABLE `animals` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -131,7 +130,7 @@ CREATE TABLE `chat_messages` (
   KEY `sender_id` (`sender_id`),
   CONSTRAINT `chat_messages_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `chat_rooms` (`id`),
   CONSTRAINT `chat_messages_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,6 +139,7 @@ CREATE TABLE `chat_messages` (
 
 LOCK TABLES `chat_messages` WRITE;
 /*!40000 ALTER TABLE `chat_messages` DISABLE KEYS */;
+INSERT INTO `chat_messages` VALUES (1,1,2,'hola','2025-05-29 10:29:47'),(2,1,2,'me recuerdass?','2025-05-29 10:52:38'),(3,1,5,'si ,te recuerdo','2025-05-29 10:53:05'),(4,1,5,'como estas?','2025-05-29 10:53:08'),(5,1,5,'esto tiene limite?','2025-05-29 10:53:13');
 /*!40000 ALTER TABLE `chat_messages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -157,7 +157,7 @@ CREATE TABLE `chat_rooms` (
   PRIMARY KEY (`id`),
   KEY `animal_id` (`animal_id`),
   CONSTRAINT `chat_rooms_ibfk_1` FOREIGN KEY (`animal_id`) REFERENCES `animals` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -166,6 +166,7 @@ CREATE TABLE `chat_rooms` (
 
 LOCK TABLES `chat_rooms` WRITE;
 /*!40000 ALTER TABLE `chat_rooms` DISABLE KEYS */;
+INSERT INTO `chat_rooms` VALUES (1,1,'2025-05-29 10:29:47');
 /*!40000 ALTER TABLE `chat_rooms` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -239,7 +240,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -248,6 +249,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'fdsfsdf','fsdfsdf@gmail.com','Pta-18092002','female','visitor',NULL,NULL,'2025-05-28 16:25:17'),(2,'pepe','pepe@gmail.com','Pta-18092002','male','visitor',NULL,NULL,'2025-05-28 16:31:12'),(3,'fdsfdsf','fdsfsdfsdfsdf@gmail.com','Pta-18092002','prefer_not_to_say','visitor',NULL,NULL,'2025-05-28 16:46:35'),(4,'jkhjkhjkb','khkjhkjhkj@gmail.com','Pta-18092002','other','visitor',NULL,NULL,'2025-05-28 16:47:00'),(5,'paco','paco@gmail.com','Pta-18092002','female','visitor',NULL,NULL,'2025-05-28 19:47:25');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -260,4 +262,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-28 17:05:43
+-- Dump completed on 2025-05-29 14:06:37
