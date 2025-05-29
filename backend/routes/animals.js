@@ -3,7 +3,17 @@ const router = express.Router();
 const db = require("../db");
 
 router.get("/", (req, res) => {
-  res.json({ message: "Rutas de animales funcionando!" });
+  const onlyAvailable = req.query.available === "1";
+  let sql = "SELECT * FROM animals";
+  let params = [];
+  if (onlyAvailable) {
+    sql += " WHERE adopted_by IS NULL OR adopted_by = 0";
+  }
+  db.query(sql, params, (err, results) => {
+    if (err)
+      return res.status(500).json({ error: "Error al obtener animales" });
+    res.json(results);
+  });
 });
 
 // Crear un nuevo animal (donación)
@@ -11,15 +21,7 @@ router.post("/", (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: "No autenticado" });
   }
-  const {
-    type,
-    name,
-    breed,
-    age,
-    gender,
-    description,
-    image_url,
-  } = req.body;
+  const { type, name, breed, age, gender, description, image_url } = req.body;
 
   // Validaciones detalladas estilo registro/login
   if (
@@ -64,16 +66,7 @@ router.post("/", (req, res) => {
   const sql = `INSERT INTO animals (type, name, breed, age, gender, description, image_url, owner_id, adopted_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`;
   db.query(
     sql,
-    [
-      type,
-      name,
-      breed,
-      age,
-      gender,
-      description,
-      image_url,
-      owner_id,
-    ],
+    [type, name, breed, age, gender, description, image_url, owner_id],
     (err, result) => {
       if (err) return res.status(500).json({ error: "Error al donar animal" });
       res.status(201).json({ ok: true, animal_id: result.insertId });

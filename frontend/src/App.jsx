@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CarouselHeader from './components/CarouselHeader';
 import Footer from './components/Footer';
 import HomeSection from './sections/HomeSection';
-import AdoptarSection from './sections/AdoptarSection';
+import AdoptionSection from './sections/AdoptionSection';
 import DonnorSection from './sections/DonnorSection';
 import PerfilSection from './sections/PerfilSection';
 import SideMenu from './components/SideMenu';
@@ -103,7 +103,7 @@ function App() {
           </div>
         ) : (
           <>
-            {section === 'adoptar' && <AdoptarSection />}
+            {section === 'adoptar' && <AdoptionSection />}
             {section === 'donnor' && <DonnorSection />}
             {section === 'perfil' && <PerfilSection />}
           </>
