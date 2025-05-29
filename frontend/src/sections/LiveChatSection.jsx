@@ -13,6 +13,9 @@ export default function LiveChatSection({ user, chatType }) {
   const messagesEndRef = useRef(null);
   const [adoptionOpen, setAdoptionOpen] = useState(true);
   const [donationOpen, setDonationOpen] = useState(true);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageModal, setImageModal] = useState(null); // url de imagen ampliada
+  const fileInputRef = useRef();
 
   // Cargar chats del usuario al entrar
   useEffect(() => {
@@ -70,6 +73,43 @@ export default function LiveChatSection({ user, chatType }) {
           setDonationChats(chats => chats.filter(c => c.room_id !== room_id));
           if (activeChat?.room_id === room_id) setActiveChat(null);
         });
+    }
+  };
+
+  // Subida y envío de imagen
+  const handleImageClick = () => {
+    if (!user) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !activeChat) return;
+    setImageUploading(true);
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      data.append('upload_preset', 'presetThanPets');
+      const res = await fetch('https://api.cloudinary.com/v1_1/djwl7si04/image/upload', {
+        method: 'POST',
+        body: data
+      });
+      const result = await res.json();
+      if (!result.secure_url) throw new Error('Error al subir la imagen.');
+      let url = result.secure_url;
+      url = url.replace('/upload/', '/upload/c_fill,g_auto,h_500,w_500/');
+      // Enviar mensaje con la url de la imagen, marcado como imagen
+      socket.emit('send_message', {
+        animal_id: activeChat.animal_id,
+        sender_id: user.id,
+        message: url,
+        isImage: true
+      });
+    } catch {
+      alert('Error al subir la imagen.');
+    } finally {
+      setImageUploading(false);
+      e.target.value = '';
     }
   };
 
@@ -201,20 +241,47 @@ export default function LiveChatSection({ user, chatType }) {
               {messages.length === 0 && (
                 <div className="live-chat-placeholder">Aquí aparecerán los mensajes en tiempo real.</div>
               )}
-              {messages.map((msg, i) => (
-                <div key={i} className={`live-chat-msg${msg.sender_id === user.id ? " own" : ""}`}>
-                  <span className="live-chat-msg-user">{msg.sender_id === user.id ? "Tú" : msg.username || `Usuario ${msg.sender_id}`}</span>
-                  <span className="live-chat-msg-text">{msg.message}</span>
-                  <span className="live-chat-msg-date">{new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                </div>
-              ))}
+              {messages.map((msg, i) => {
+                // Si el mensaje es una imagen (url de imagen), mostrar como imagen
+                const isImage = (msg.isImage || (typeof msg.message === 'string' && msg.message.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i)));
+                return (
+                  <div key={i} className={`live-chat-msg${msg.sender_id === user.id ? " own" : ""}`}>
+                    <span className="live-chat-msg-user">{msg.sender_id === user.id ? "Tú" : msg.username || `Usuario ${msg.sender_id}`}</span>
+                    {isImage ? (
+                      <img
+                        src={msg.message}
+                        alt="Imagen enviada"
+                        className="live-chat-msg-img"
+                        style={{ maxWidth: 220, maxHeight: 220, borderRadius: 12, cursor: 'pointer', margin: '0.5em 0' }}
+                        onClick={() => setImageModal(msg.message)}
+                      />
+                    ) : (
+                      <span className="live-chat-msg-text">{msg.message}</span>
+                    )}
+                    <span className="live-chat-msg-date">{new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                  </div>
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
             <form className="live-chat-form" onSubmit={handleSend} autoComplete="off">
               <div className="live-chat-input-wrapper">
-                <button className="live-chat-icon-btn live-chat-photo-btn" type="button" disabled title="Subir foto">
+                <button
+                  className="live-chat-icon-btn live-chat-photo-btn"
+                  type="button"
+                  onClick={handleImageClick}
+                  disabled={imageUploading || !user}
+                  title="Subir foto"
+                >
                   <span className="bitcoin-icons--send-filled" />
                 </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleImageChange}
+                />
                 <input
                   className="live-chat-input"
                   type="text"
@@ -228,9 +295,18 @@ export default function LiveChatSection({ user, chatType }) {
                 <span className="mingcute--send-fill" />
               </button>
             </form>
+            {imageUploading && <div style={{ color: '#a05a2c', fontWeight: 600, fontSize: '1rem', textAlign: 'center', margin: '0.5em 0' }}>Subiendo imagen...</div>}
           </div>
         )}
         {!activeChat && <div className="live-chat-placeholder">Selecciona un chat para comenzar.</div>}
+        {/* Modal de imagen ampliada */}
+        {imageModal && (
+          <div className="adoptar-modal-backdrop" style={{ zIndex: 3000 }} onClick={() => setImageModal(null)}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+              <img src={imageModal} alt="Imagen ampliada" style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 18, boxShadow: '0 4px 32px #ffcf8e99' }} onClick={e => e.stopPropagation()} />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
