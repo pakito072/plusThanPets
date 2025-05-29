@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const NAV_ITEMS = [
   {
@@ -9,17 +9,20 @@ const NAV_ITEMS = [
   {
     key: 'adoptar',
     label: 'Adoptar',
-    icon: <span className="mdi--heart-outline" />
+    icon: <span className="mdi--heart-outline" />,
+    subOptions: [
+      { key: 'adoptar-catalogo', label: 'Catálogo', icon: <span className="mdi--heart-outline" /> },
+      { key: 'adoptar-chats', label: 'Chats de adoptante', icon: <span className="material-symbols--chat-outline-rounded" /> }
+    ]
   },
   {
     key: 'donnor',
     label: 'Donar',
-    icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} />
-  },
-  {
-    key: 'chat',
-    label: 'Chat',
-    icon: <span className="material-symbols--chat-outline-rounded" />
+    icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} />,
+    subOptions: [
+      { key: 'donnor-ficha', label: 'Ficha', icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} /> },
+      { key: 'donnor-chats', label: 'Chats de donante', icon: <span className="material-symbols--chat-outline-rounded" /> }
+    ]
   },
   {
     key: 'perfil',
@@ -29,6 +32,22 @@ const NAV_ITEMS = [
 ];
 
 export default function SideMenu({ onSelect, selected, onAuthModal, user }) {
+  const [openSub, setOpenSub] = useState(null);
+
+  const handleMainClick = (item) => {
+    if (item.subOptions) {
+      setOpenSub(openSub === item.key ? null : item.key);
+    } else {
+      setOpenSub(null);
+      onSelect(item.key);
+    }
+  };
+
+  const handleSubClick = (subKey) => {
+    onSelect(subKey);
+    setOpenSub(null);
+  };
+
   return (
     <nav className="navbar-lateral">
       <ul className="navbar-lateral-items">
@@ -38,13 +57,32 @@ export default function SideMenu({ onSelect, selected, onAuthModal, user }) {
           </a>
         </li>
         {NAV_ITEMS.map(item => (
-          <li key={item.key} className={`navbar-lateral-item${selected === item.key ? ' active' : ''}`}
-            onClick={() => onSelect(item.key)}>
-            <a className="navbar-lateral-item-inner">
-              <span className="navbar-lateral-item-icon">{item.icon}</span>
-              <span className="navbar-lateral-link-text">{item.label}</span>
-            </a>
-          </li>
+          <React.Fragment key={item.key}>
+            <li className={`navbar-lateral-item${selected === item.key ? ' active' : ''}`}
+              onClick={() => handleMainClick(item)}>
+              <a className="navbar-lateral-item-inner">
+                <span className="navbar-lateral-item-icon">{item.icon}</span>
+                <span className="navbar-lateral-link-text">{item.label}</span>
+                {item.subOptions && (
+                  <span style={{ marginLeft: 6, fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                    {openSub === item.key ? '▲' : '▼'}
+                  </span>
+                )}
+              </a>
+            </li>
+            {item.subOptions && openSub === item.key && (
+              <ul className="navbar-lateral-suboptions" style={{ listStyle: 'none', paddingLeft: 0, margin: 0 }}>
+                {item.subOptions.map(sub => (
+                  <li key={sub.key} className={`navbar-lateral-subitem${selected === sub.key ? ' active' : ''}`}
+                    onClick={() => handleSubClick(sub.key)}
+                    style={{ display: 'flex', alignItems: 'center', padding: '0.5em 1.2em 0.5em 2.5em', cursor: 'pointer', borderRadius: 8 }}>
+                    <span className="navbar-lateral-item-icon">{sub.icon}</span>
+                    <span className="navbar-lateral-link-text">{sub.label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </React.Fragment>
         ))}
         {/* Espaciador para empujar la opción de login abajo */}
         <li style={{ flex: 1 }}></li>

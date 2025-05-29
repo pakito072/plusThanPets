@@ -15,6 +15,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [authMessage, setAuthMessage] = useState(null); // { type: 'success'|'error', text: string }
   const [logoutModal, setLogoutModal] = useState(false);
+  const [chatAnimal, setChatAnimal] = useState(null);
 
   // Autologin al cargar la app
   useEffect(() => {
@@ -96,20 +97,11 @@ function App() {
       <CarouselHeader />
       <main>
         {section === 'home' && <HomeSection />}
-        {['adoptar', 'donnor', 'perfil', 'chat'].includes(section) && !user ? (
-          <div className="restricted-section-msg">
-            <h2>Acceso restringido</h2>
-            <p>Debes iniciar sesión para acceder a esta sección.</p>
-            <button className="auth-modal-submit" onClick={() => setAuthOpen(true)}>Iniciar sesión</button>
-          </div>
-        ) : (
-          <>
-            {section === 'adoptar' && <AdoptionSection />}
-            {section === 'donnor' && <DonnorSection />}
-            {section === 'perfil' && <PerfilSection />}
-            {section === 'chat' && <LiveChatSection />}
-          </>
-        )}
+        {['adoptar', 'adoptar-catalogo'].includes(section) && <AdoptionSection setSection={setSection} setChatAnimal={setChatAnimal} />}
+        {section === 'adoptar-chats' && <LiveChatSection animal={chatAnimal} user={user} chatType="adoptante" />}
+        {['donnor', 'donnor-ficha'].includes(section) && <DonnorSection />}
+        {section === 'donnor-chats' && <LiveChatSection animal={chatAnimal} user={user} chatType="donnor" />}
+        {section === 'perfil' && <PerfilSection />}
       </main>
       <Footer />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} onAuth={handleAuth} message={authMessage} />

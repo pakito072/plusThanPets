@@ -1,7 +1,7 @@
 // ...existing code...
 import React, { useState, useEffect } from 'react';
 
-export default function AdoptionSection() {
+export default function AdoptionSection({ setSection, setChatAnimal }) {
   const [animals, setAnimals] = useState([]);
   const [modalAnimal, setModalAnimal] = useState(null);
 
@@ -10,6 +10,12 @@ export default function AdoptionSection() {
       .then(res => res.json())
       .then(data => setAnimals(data));
   }, []);
+
+  const handleChat = (animal) => {
+    if (setChatAnimal) setChatAnimal(animal);
+    if (setSection) setSection('chat');
+    setModalAnimal(null);
+  };
 
   return (
     <section className="adoptar-section">
@@ -40,6 +46,10 @@ export default function AdoptionSection() {
               <p><b>Género:</b> {modalAnimal.gender === 'male' ? 'Macho' : 'Hembra'}</p>
               <p><b>Descripción:</b> {modalAnimal.description}</p>
               <p><b>Publicado:</b> {new Date(modalAnimal.created_at).toLocaleDateString()}</p>
+              <button className="adoptar-modal-chat" onClick={() => handleChat(modalAnimal)}>
+                <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 8, fontSize: 22 }} />
+                Chat
+              </button>
               <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>Cerrar</button>
             </div>
           </div>
