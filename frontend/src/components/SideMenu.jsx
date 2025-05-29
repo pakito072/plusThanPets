@@ -11,8 +11,8 @@ const NAV_ITEMS = [
     label: 'Adoptar',
     icon: <span className="mdi--heart-outline" />,
     subOptions: [
-      { key: 'adoptar-catalogo', label: 'Catálogo', icon: <span className="mdi--heart-outline" /> },
-      { key: 'adoptar-chats', label: 'Chats de adoptante', icon: <span className="material-symbols--chat-outline-rounded" /> }
+      { key: 'adoptar-catalogo', label: 'Catálogo', icon: <span className="material-symbols--search-rounded" /> },
+      { key: 'adoptar-chats', label: 'Chats de adoptante', icon: <span className="bx--chat" /> }
     ]
   },
   {
@@ -20,8 +20,8 @@ const NAV_ITEMS = [
     label: 'Donar',
     icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} />,
     subOptions: [
-      { key: 'donnor-ficha', label: 'Ficha', icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} /> },
-      { key: 'donnor-chats', label: 'Chats de donante', icon: <span className="material-symbols--chat-outline-rounded" /> }
+      { key: 'donnor-ficha', label: 'Ficha', icon: <span className="material-symbols--list-rounded" /> },
+      { key: 'donnor-chats', label: 'Chats de donante', icon: <span className="bx--chat" /> }
     ]
   },
   {
@@ -62,12 +62,19 @@ export default function SideMenu({ onSelect, selected, onAuthModal, user }) {
               onClick={() => handleMainClick(item)}>
               <a className="navbar-lateral-item-inner">
                 <span className="navbar-lateral-item-icon">{item.icon}</span>
-                <span className="navbar-lateral-link-text">{item.label}</span>
-                {item.subOptions && (
-                  <span style={{ marginLeft: 6, fontSize: 14, display: 'flex', alignItems: 'center' }}>
-                    {openSub === item.key ? '▲' : '▼'}
-                  </span>
-                )}
+                <span className="navbar-lateral-link-text">{item.label}
+                  {item.subOptions && (
+                    <span
+                      className={`weui--arrow-filled navbar-lateral-arrow-icon${openSub === item.key ? ' open' : ''}`}
+                      style={{
+                        display: 'inline-block',
+                        marginLeft: 10,
+                        transition: 'transform 0.25s',
+                        transform: openSub === item.key ? 'rotate(90deg)' : 'rotate(0deg)'
+                      }}
+                    />
+                  )}
+                </span>
               </a>
             </li>
             {item.subOptions && openSub === item.key && (
