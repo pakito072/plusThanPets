@@ -11,8 +11,7 @@ const NAV_ITEMS = [
     label: 'Adoptar',
     icon: <span className="mdi--heart-outline" />,
     subOptions: [
-      { key: 'adoptar-catalogo', label: 'Catálogo', icon: <span className="material-symbols--search-rounded" /> },
-      { key: 'adoptar-chats', label: 'Chats de adoptante', icon: <span className="bx--chat" /> }
+      { key: 'adoptar-catalogo', label: 'Catálogo', icon: <span className="material-symbols--search-rounded" /> }
     ]
   },
   {
@@ -20,9 +19,13 @@ const NAV_ITEMS = [
     label: 'Donar',
     icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} />,
     subOptions: [
-      { key: 'donnor-ficha', label: 'Ficha', icon: <span className="material-symbols--list-rounded" /> },
-      { key: 'donnor-chats', label: 'Chats de donante', icon: <span className="bx--chat" /> }
+      { key: 'donnor-ficha', label: 'Ficha', icon: <span className="material-symbols--list-rounded" /> }
     ]
+  },
+  {
+    key: 'chats',
+    label: 'Chats',
+    icon: <span className="material-symbols--chat-outline-rounded" />
   },
   {
     key: 'perfil',

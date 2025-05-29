@@ -10,8 +10,9 @@ export default function LiveChatSection({ user, chatType }) {
   const [activeChat, setActiveChat] = useState(null); // {room_id, ...}
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [minimized, setMinimized] = useState({}); // {room_id: true/false}
   const messagesEndRef = useRef(null);
+  const [adoptionOpen, setAdoptionOpen] = useState(true);
+  const [donationOpen, setDonationOpen] = useState(true);
 
   // Cargar chats del usuario al entrar
   useEffect(() => {
@@ -60,10 +61,6 @@ export default function LiveChatSection({ user, chatType }) {
     setInput("");
   };
 
-  const handleMinimize = (room_id) => {
-    setMinimized(prev => ({ ...prev, [room_id]: !prev[room_id] }));
-  };
-
   const handleClose = (room_id) => {
     if (window.confirm("¿Cerrar este chat? Se eliminará el historial.")) {
       fetch(`/api/chat/room/${room_id}`, { method: "DELETE" })
@@ -76,29 +73,30 @@ export default function LiveChatSection({ user, chatType }) {
     }
   };
 
+  // Renderiza la lista de chats como lista simple
   const renderChatList = (chats, title) => (
-    <div className="live-chat-list-block">
+    <div className="live-chat-list-block" style={{ background: 'none', border: 'none', boxShadow: 'none', padding: 0, maxWidth: 'none' }}>
       <h2 className="live-chat-list-title">{title}</h2>
-      {chats.length === 0 && <div className="live-chat-list-empty">No hay chats.</div>}
-      {chats.map(chat => (
-        <div key={chat.room_id} className={`live-chat-list-item${activeChat?.room_id === chat.room_id ? " active" : ""}`}>
-          <div className="live-chat-list-main" onClick={() => setActiveChat(chat)}>
-            <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 8 }} />
-            <span className="live-chat-list-animal">{chat.animal_name}</span>
-            <span className="live-chat-list-owner">{chat.owner_name}</span>
-          </div>
-          <div className="live-chat-list-actions">
-            <button className="live-chat-list-btn" onClick={() => handleMinimize(chat.room_id)} title="Comprimir/Expandir">
-              {minimized[chat.room_id] ? "🗖" : "🗕"}
+      {chats.length === 0 && (
+        <div className="live-chat-list-empty" style={{ textAlign: 'center', padding: '1.5em 0', color: '#a05a2c', opacity: 0.7 }}>
+          No hay chats.
+        </div>
+      )}
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {chats.map(chat => (
+          <li key={chat.room_id} style={{ marginBottom: '1.2em', display: 'flex', alignItems: 'center', gap: '1em' }}>
+            <button style={{ background: 'none', border: 'none', color: '#a05a2c', fontWeight: 700, fontSize: '1.1em', cursor: 'pointer', textAlign: 'left', flex: 1 }} onClick={() => setActiveChat(chat)}>
+              <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 8 }} />
+              {chat.animal_name} <span style={{ color: '#a05a2c', opacity: 0.7, fontWeight: 400, fontSize: '0.95em', marginLeft: 8 }}>{chat.owner_name}</span>
             </button>
             <button className="live-chat-list-btn" onClick={() => handleClose(chat.room_id)} title="Cerrar chat">✖</button>
-          </div>
-        </div>
-      ))}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 
-  // Mostrar solo la lista de chats correspondiente según chatType
+  // Nuevo layout: dos columnas horizontales para las listas de chats, cada una desplegable
   let chatLists = null;
   if (chatType === "adoptante") {
     chatLists = renderChatList(adoptionChats, "Chats de Adopción");
@@ -106,26 +104,100 @@ export default function LiveChatSection({ user, chatType }) {
     chatLists = renderChatList(donationChats, "Chats de Donaciones");
   } else {
     chatLists = (
-      <div className="live-chat-lists">
-        {renderChatList(adoptionChats, "Chats de Adopción")}
-        {renderChatList(donationChats, "Chats de Donaciones")}
+      <div className="live-chat-lists-row" style={{ display: 'flex', flexDirection: 'row', gap: '2.5rem', justifyContent: 'center', width: '100%', marginBottom: '2.5rem' }}>
+        <div className="live-chat-list-block" style={{ flex: 1, minWidth: 260, background: 'none', border: 'none', boxShadow: 'none', padding: 0, maxWidth: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 18 }}>
+            <h2 className="section-title" style={{ fontSize: '1.45rem', color: '#a05a2c', fontWeight: 900, margin: 0, textAlign: 'center', letterSpacing: 0 }}>Chats de Adopción</h2>
+            <button onClick={() => setAdoptionOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 4, padding: 0, display: 'flex', alignItems: 'center' }} aria-label={adoptionOpen ? 'Contraer' : 'Desplegar'}>
+              <svg width="22" height="22" viewBox="0 0 22 22" style={{ transform: adoptionOpen ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.18s' }}>
+                <polyline points="6,8 11,14 16,8" fill="none" stroke="#a05a2c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+          {adoptionOpen && (
+            <>
+              {adoptionChats.length === 0 && (
+                <div className="live-chat-list-empty" style={{ textAlign: 'center', padding: '1.5em 0', color: '#a05a2c', opacity: 0.7 }}>
+                  No hay chats.
+                </div>
+              )}
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {adoptionChats.map(chat => (
+                  <li key={chat.room_id} style={{ marginBottom: '1.2em', display: 'flex', alignItems: 'center', gap: '1em' }}>
+                    <button
+                      style={{ background: 'none', border: 'none', color: '#a05a2c', fontWeight: 700, fontSize: '1.1em', cursor: 'pointer', textAlign: 'left', flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}
+                      onClick={() => setActiveChat(activeChat && activeChat.room_id === chat.room_id ? null : chat)}
+                    >
+                      <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 4 }} />
+                      {chat.animal_name} <span style={{ color: '#a05a2c', opacity: 0.7, fontWeight: 400, fontSize: '0.95em', marginLeft: 8 }}>{chat.owner_name}</span>
+                      <span style={{ marginLeft: 8, display: 'flex', alignItems: 'center' }}>
+                        <svg width="18" height="18" viewBox="0 0 22 22" style={{ transform: activeChat && activeChat.room_id === chat.room_id ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.18s' }}>
+                          <polyline points="6,8 11,14 16,8" fill="none" stroke="#a05a2c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                    </button>
+                    <button className="live-chat-list-btn" onClick={() => handleClose(chat.room_id)} title="Cerrar chat">✖</button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+        <div className="live-chat-list-block" style={{ flex: 1, minWidth: 260, background: 'none', border: 'none', boxShadow: 'none', padding: 0, maxWidth: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 18 }}>
+            <h2 className="section-title" style={{ fontSize: '1.45rem', color: '#a05a2c', fontWeight: 900, margin: 0, textAlign: 'center', letterSpacing: 0 }}>Chats de Donaciones</h2>
+            <button onClick={() => setDonationOpen(o => !o)} style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 4, padding: 0, display: 'flex', alignItems: 'center' }} aria-label={donationOpen ? 'Contraer' : 'Desplegar'}>
+              <svg width="22" height="22" viewBox="0 0 22 22" style={{ transform: donationOpen ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.18s' }}>
+                <polyline points="6,8 11,14 16,8" fill="none" stroke="#a05a2c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+          {donationOpen && (
+            <>
+              {donationChats.length === 0 && (
+                <div className="live-chat-list-empty" style={{ textAlign: 'center', padding: '1.5em 0', color: '#a05a2c', opacity: 0.7 }}>
+                  No hay chats.
+                </div>
+              )}
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {donationChats.map(chat => (
+                  <li key={chat.room_id} style={{ marginBottom: '1.2em', display: 'flex', alignItems: 'center', gap: '1em' }}>
+                    <button
+                      style={{ background: 'none', border: 'none', color: '#a05a2c', fontWeight: 700, fontSize: '1.1em', cursor: 'pointer', textAlign: 'left', flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}
+                      onClick={() => setActiveChat(activeChat && activeChat.room_id === chat.room_id ? null : chat)}
+                    >
+                      <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 4 }} />
+                      {chat.animal_name} <span style={{ color: '#a05a2c', opacity: 0.7, fontWeight: 400, fontSize: '0.95em', marginLeft: 8 }}>{chat.owner_name}</span>
+                      <span style={{ marginLeft: 8, display: 'flex', alignItems: 'center' }}>
+                        <svg width="18" height="18" viewBox="0 0 22 22" style={{ transform: activeChat && activeChat.room_id === chat.room_id ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.18s' }}>
+                          <polyline points="6,8 11,14 16,8" fill="none" stroke="#a05a2c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                    </button>
+                    <button className="live-chat-list-btn" onClick={() => handleClose(chat.room_id)} title="Cerrar chat">✖</button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <section className="live-chat-section">
-      <div className="live-chat-container expanded">
-        <div className="live-chat-lists">
+    <section className="live-chat-section" style={{ background: '#fff8ef', minHeight: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 0 2rem 0' }}>
+      <div className="live-chat-container" style={{ background: 'none', border: 'none', borderRadius: 0, boxShadow: 'none', maxWidth: '1100px', width: '100%', minHeight: '600px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', padding: 0 }}>
+        <div style={{ width: '100%' }}>
           {chatLists}
         </div>
-        {activeChat && !minimized[activeChat.room_id] && (
-          <div className="live-chat-active">
-            <div className="live-chat-header">
+        {activeChat && (
+          <div className="live-chat-active" style={{ background: '#fff8ef', borderRadius: '22px', boxShadow: '0 4px 32px #ffcf8e55', padding: '0', margin: '2rem auto 0 auto', maxWidth: '1100px', minWidth: '320px', width: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.7em', padding: '2rem 2.5rem 1.3rem 2.5rem', borderRadius: '22px 22px 0 0', borderBottom: '2px solid #ffcf8e', background: 'none' }}>
               <span className="material-symbols--chat-outline-rounded" style={{ fontSize: 32, marginRight: 14 }} />
-              <h1>Chat: {activeChat.animal_name}</h1>
+              <h1 style={{ fontSize: '1.7rem', color: '#6f3619', fontWeight: 900, margin: 0 }}>Chat: {activeChat.animal_name}</h1>
             </div>
-            <div className="live-chat-messages">
+            <div className="live-chat-messages" style={{ flex: 1, padding: '1.5rem 2.5rem 0.7rem 2.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.9em' }}>
               {messages.length === 0 && (
                 <div className="live-chat-placeholder">Aquí aparecerán los mensajes en tiempo real.</div>
               )}
