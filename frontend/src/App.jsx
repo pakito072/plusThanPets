@@ -5,6 +5,7 @@ import HomeSection from './sections/HomeSection';
 import AdoptionSection from './sections/AdoptionSection';
 import DonnorSection from './sections/DonnorSection';
 import PerfilSection from './sections/PerfilSection';
+import LiveChatSection from './sections/LiveChatSection';
 import SideMenu from './components/SideMenu';
 import AuthModal from './components/AuthModal';
 
@@ -95,7 +96,7 @@ function App() {
       <CarouselHeader />
       <main>
         {section === 'home' && <HomeSection />}
-        {['adoptar', 'donnor', 'perfil'].includes(section) && !user ? (
+        {['adoptar', 'donnor', 'perfil', 'chat'].includes(section) && !user ? (
           <div className="restricted-section-msg">
             <h2>Acceso restringido</h2>
             <p>Debes iniciar sesión para acceder a esta sección.</p>
@@ -106,6 +107,7 @@ function App() {
             {section === 'adoptar' && <AdoptionSection />}
             {section === 'donnor' && <DonnorSection />}
             {section === 'perfil' && <PerfilSection />}
+            {section === 'chat' && <LiveChatSection />}
           </>
         )}
       </main>

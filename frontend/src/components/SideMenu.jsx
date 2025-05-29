@@ -17,6 +17,11 @@ const NAV_ITEMS = [
     icon: <span className="streamline-flex--give-star" style={{ width: 24, height: 24 }} />
   },
   {
+    key: 'chat',
+    label: 'Chat',
+    icon: <span className="material-symbols--chat-outline-rounded" />
+  },
+  {
     key: 'perfil',
     label: 'Perfil',
     icon: <span className="ri--user-line" />
