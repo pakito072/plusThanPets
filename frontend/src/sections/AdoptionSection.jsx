@@ -37,21 +37,29 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
       {modalAnimal && (
         <div className="adoptar-modal-backdrop" onClick={() => setModalAnimal(null)}>
           <div className="adoptar-modal" onClick={e => e.stopPropagation()}>
-            <img src={modalAnimal.image_url} alt={modalAnimal.name} className="adoptar-modal-img" />
-            <div className="adoptar-modal-info">
-              <h2>{modalAnimal.name}</h2>
-              <p><b>Tipo:</b> {modalAnimal.type === 'dog' ? 'Perro' : 'Gato'}</p>
-              <p><b>Raza:</b> {modalAnimal.breed}</p>
-              <p><b>Edad:</b> {modalAnimal.age} años</p>
-              <p><b>Género:</b> {modalAnimal.gender === 'male' ? 'Macho' : 'Hembra'}</p>
-              <p><b>Descripción:</b> {modalAnimal.description}</p>
-              <p><b>Publicado:</b> {new Date(modalAnimal.created_at).toLocaleDateString()}</p>
-              <button className="adoptar-modal-chat" onClick={() => handleChat(modalAnimal)}>
-                <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 8, fontSize: 22 }} />
-                Chat
-              </button>
-              <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>Cerrar</button>
+            <div className="adoptar-modal-img-col">
+              <img src={modalAnimal.image_url} alt={modalAnimal.name} className="adoptar-modal-img" />
+              <h2 className="adoptar-modal-animal-name">{modalAnimal.name}</h2>
             </div>
+            <div className="adoptar-modal-info-cols">
+              <div className="adoptar-modal-info-col">
+                <p><b>Tipo:</b> {modalAnimal.type === 'dog' ? 'Perro' : 'Gato'}</p>
+                <p><b>Raza:</b> {modalAnimal.breed}</p>
+                <p><b>Edad:</b> {modalAnimal.age} años</p>
+              </div>
+              <div className="adoptar-modal-info-col">
+                <p><b>Género:</b> {modalAnimal.gender === 'male' ? 'Macho' : 'Hembra'}</p>
+                <p><b>Descripción:</b> {modalAnimal.description}</p>
+                <p><b>Publicado:</b> {new Date(modalAnimal.created_at).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+          <div className="adoptar-modal-actions">
+            <button className="adoptar-modal-chat" onClick={() => handleChat(modalAnimal)}>
+              <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 8, fontSize: 22 }} />
+              Chat
+            </button>
+            <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>Cerrar</button>
           </div>
         </div>
       )}
