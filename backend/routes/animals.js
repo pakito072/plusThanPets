@@ -19,9 +19,9 @@ router.post("/", (req, res) => {
     gender,
     description,
     image_url,
-    location_lat,
-    location_lng,
   } = req.body;
+
+  // Validaciones detalladas estilo registro/login
   if (
     !type ||
     !name ||
@@ -29,14 +29,39 @@ router.post("/", (req, res) => {
     !age ||
     !gender ||
     !description ||
-    !image_url ||
-    !location_lat ||
-    !location_lng
+    !image_url
   ) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
+  if (typeof age !== "number" || isNaN(age) || age <= 0) {
+    return res
+      .status(400)
+      .json({ error: "La edad debe ser un número mayor que 0" });
+  }
+  if (!["male", "female"].includes(gender)) {
+    return res
+      .status(400)
+      .json({ error: "El género debe ser 'Macho' o 'Hembra'" });
+  }
+  if (typeof name !== "string" || name.length < 2) {
+    return res
+      .status(400)
+      .json({ error: "El nombre debe tener al menos 2 caracteres" });
+  }
+  if (typeof breed !== "string" || breed.length < 2) {
+    return res
+      .status(400)
+      .json({ error: "La raza debe tener al menos 2 caracteres" });
+  }
+  if (typeof description !== "string" || description.length < 10) {
+    return res
+      .status(400)
+      .json({ error: "La descripción debe tener al menos 10 caracteres" });
+  }
+  // Puedes añadir más validaciones si lo deseas
+
   const owner_id = req.session.user.id;
-  const sql = `INSERT INTO animals (type, name, breed, age, gender, description, image_url, location_lat, location_lng, owner_id, adopted_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`;
+  const sql = `INSERT INTO animals (type, name, breed, age, gender, description, image_url, owner_id, adopted_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`;
   db.query(
     sql,
     [
@@ -47,8 +72,6 @@ router.post("/", (req, res) => {
       gender,
       description,
       image_url,
-      location_lat,
-      location_lng,
       owner_id,
     ],
     (err, result) => {

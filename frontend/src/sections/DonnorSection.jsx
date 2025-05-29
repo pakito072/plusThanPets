@@ -12,21 +12,19 @@ export default function DonnorSection() {
   });
   const [success, setSuccess] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
+  const [backendError, setBackendError] = useState("");
 
   const handleChange = e => {
     const { name, value } = e.target;
     // Validación en tiempo real
     if (name === "age" && value && !/^\d{0,2}$/.test(value)) return; // Solo números de hasta 2 dígitos
     setForm({ ...form, [name]: value });
-    setError("");
   };
 
   const handleFileChange = async e => {
     const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
-    setError("");
     try {
       const data = new FormData();
       data.append('file', file);
@@ -41,7 +39,7 @@ export default function DonnorSection() {
       url = url.replace('/upload/', '/upload/c_fill,g_auto,h_500,w_500/');
       setForm(f => ({ ...f, image_url: url }));
     } catch (err) {
-      setError(err.message || "Error inesperado al subir la imagen");
+      setBackendError(err.message || "Error inesperado al subir la imagen");
     } finally {
       setUploading(false);
     }
@@ -49,20 +47,16 @@ export default function DonnorSection() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    // Validaciones
-    if (!form.type.trim() || !form.name.trim() || !form.breed.trim() || !form.age || !form.gender || !form.description.trim() || !form.image_url) {
-      setError("Por favor, rellena todos los campos y sube una imagen.");
-      return;
-    }
-    if (isNaN(Number(form.age)) || Number(form.age) <= 0) {
-      setError("La edad debe ser un número mayor que 0.");
-      return;
-    }
-    setError("");
+    setBackendError("");
     const res = await fetch('/api/animals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, age: Number(form.age) })
+      body: JSON.stringify({
+        ...form,
+        age: Number(form.age) || 0,
+        gender: form.gender, // 'male' o 'female'
+        type: form.type // 'dog' o 'cat'
+      })
     });
     if (res.ok) {
       setSuccess(true);
@@ -77,7 +71,7 @@ export default function DonnorSection() {
       });
     } else {
       const data = await res.json().catch(() => ({}));
-      setError(data.error || "Error al donar el animal. Intenta de nuevo.");
+      setBackendError(data.error || "Error al donar el animal. Intenta de nuevo.");
     }
   };
 
@@ -85,21 +79,32 @@ export default function DonnorSection() {
     <section className="donar-section">
       <h1 className="section-title">Donar</h1>
       <form className="donar-form" onSubmit={handleSubmit}>
-        <input name="type" placeholder="Tipo (perro, gato...)*" value={form.type} onChange={handleChange} required />
-        <input name="name" placeholder="Nombre*" value={form.name} onChange={handleChange} required />
-        <input name="breed" placeholder="Raza*" value={form.breed} onChange={handleChange} required />
-        <input name="age" type="number" min="1" max="30" placeholder="Edad*" value={form.age} onChange={handleChange} required />
+        <div className="auth-modal-select-wrapper">
+          <select
+            name="type"
+            value={form.type}
+            onChange={handleChange}
+            className="auth-modal-select"
+          >
+            <option value="" disabled>Selecciona tipo*</option>
+            <option value="dog">Perro</option>
+            <option value="cat">Gato</option>
+            <option value="soon" disabled>Más próximamente...</option>
+          </select>
+        </div>
+        <input name="name" placeholder="Nombre*" value={form.name} onChange={handleChange} />
+        <input name="breed" placeholder="Raza*" value={form.breed} onChange={handleChange} />
+        <input name="age" type="number" min="1" max="30" placeholder="Edad*" value={form.age} onChange={handleChange} />
         <div className="auth-modal-select-wrapper">
           <select
             name="gender"
             value={form.gender}
             onChange={handleChange}
-            required
             className="auth-modal-select"
           >
             <option value="" disabled>Selecciona género*</option>
-            <option value="M">Macho</option>
-            <option value="F">Hembra</option>
+            <option value="male">Macho</option>
+            <option value="female">Hembra</option>
           </select>
           <span className="auth-modal-select-arrow">
             <svg width="22" height="22" viewBox="0 0 22 22">
@@ -107,11 +112,15 @@ export default function DonnorSection() {
             </svg>
           </span>
         </div>
-        <textarea name="description" placeholder="Descripción*" value={form.description} onChange={handleChange} required />
-        <input type="file" accept="image/*" onChange={handleFileChange} required />
+        <textarea name="description" placeholder="Descripción*" value={form.description} onChange={handleChange} />
+        <input type="file" accept="image/*" onChange={handleFileChange} />
         {uploading && <p>Subiendo imagen...</p>}
         {form.image_url && <img src={form.image_url} alt="preview" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 12, margin: '0 auto' }} />}
-        {error && <p className="auth-modal-tooltip error" style={{ marginTop: 8 }}>{error}</p>}
+        {backendError && (
+          <div className="auth-modal-tooltip error" style={{ marginTop: 8 }}>
+            {backendError}
+          </div>
+        )}
         <button type="submit" disabled={uploading}>Donar animal</button>
       </form>
       {success && <p className="donar-success">¡Animal donado correctamente!</p>}
