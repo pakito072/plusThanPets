@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 export default function AdoptionSection({ setSection, setChatAnimal }) {
   const [animals, setAnimals] = useState([]);
   const [modalAnimal, setModalAnimal] = useState(null);
+  const [chatError, setChatError] = useState("");
 
   useEffect(() => {
     fetch('/api/animals?available=1')
@@ -11,9 +12,25 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
       .then(data => setAnimals(data));
   }, []);
 
-  const handleChat = (animal) => {
-    if (setChatAnimal) setChatAnimal(animal);
-    if (setSection) setSection('chat');
+  // Nuevo handleChat con validación
+  const handleChat = async (animal) => {
+    setChatError("");
+    // Comprobar si el usuario ya tiene un chat de adopción abierto
+    const res = await fetch('/api/users/me', { credentials: 'include' });
+    if (!res.ok) {
+      setChatError("Debes iniciar sesión para usar el chat.");
+      return;
+    }
+    const user = await res.json();
+    const chatsRes = await fetch(`/api/chat/user/${user.id}`);
+    const chatsData = await chatsRes.json();
+    if ((chatsData.adoptionChats || []).length > 0) {
+      setChatError("Solo puedes tener un chat de adopción abierto a la vez. Cierra el anterior para abrir uno nuevo.");
+      return;
+    }
+    // Guardar el animal a abrir en localStorage para que LiveChatSection lo recoja
+    localStorage.setItem('openChatAnimalId', animal.id);
+    if (setSection) setSection('chats');
     setModalAnimal(null);
   };
 
@@ -53,13 +70,14 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
                 <p><b>Publicado:</b> {new Date(modalAnimal.created_at).toLocaleDateString()}</p>
               </div>
             </div>
-          </div>
-          <div className="adoptar-modal-actions">
-            <button className="adoptar-modal-chat" onClick={() => handleChat(modalAnimal)}>
-              <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 8, fontSize: 22 }} />
-              Chat
-            </button>
-            <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>Cerrar</button>
+            {chatError && <div className="auth-modal-tooltip error" style={{ margin: '0 auto 1em auto', maxWidth: 400, textAlign: 'center' }}>{chatError}</div>}
+            <div className="adoptar-modal-actions">
+              <button className="adoptar-modal-chat" onClick={() => handleChat(modalAnimal)}>
+                <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 8, fontSize: 22 }} />
+                Chat
+              </button>
+              <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>Cerrar</button>
+            </div>
           </div>
         </div>
       )}

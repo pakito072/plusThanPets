@@ -55,6 +55,7 @@ io.on("connection", (socket) => {
 
   // Recibir y reenviar mensajes
   socket.on("send_message", async ({ animal_id, sender_id, message }) => {
+    // Comprobar si el animal ya tiene un chat de adopción abierto
     db.query(
       "SELECT id FROM chat_rooms WHERE animal_id = ?",
       [animal_id],
@@ -65,13 +66,48 @@ io.on("connection", (socket) => {
           room_id = results[0].id;
           saveAndEmit(room_id);
         } else {
+          // RESTRICCIONES DE ADOPCIÓN
+          // 1. El usuario no puede tener más de un chat de adopción abierto
           db.query(
-            "INSERT INTO chat_rooms (animal_id, created_at) VALUES (?, NOW())",
-            [animal_id],
-            (err, result) => {
-              if (err) return;
-              room_id = result.insertId;
-              saveAndEmit(room_id);
+            `SELECT cr.id FROM chat_rooms cr
+             JOIN chat_messages cm ON cr.id = cm.room_id
+             WHERE cm.sender_id = ?`,
+            [sender_id],
+            (err2, userChats) => {
+              if (err2) return;
+              if (userChats.length > 0) {
+                // Ya tiene un chat abierto
+                socket.emit("chat_error", {
+                  error:
+                    "Solo puedes tener un chat de adopción abierto a la vez.",
+                });
+                return;
+              }
+              // 2. El animal no puede estar en dos chats de adopción a la vez
+              db.query(
+                "SELECT id FROM chat_rooms WHERE animal_id = ?",
+                [animal_id],
+                (err3, animalChats) => {
+                  if (err3) return;
+                  if (animalChats.length > 0) {
+                    socket.emit("chat_error", {
+                      error:
+                        "Este animal ya tiene un chat de adopción abierto.",
+                    });
+                    return;
+                  }
+                  // Si pasa ambas restricciones, crear el chat
+                  db.query(
+                    "INSERT INTO chat_rooms (animal_id, created_at) VALUES (?, NOW())",
+                    [animal_id],
+                    (err, result) => {
+                      if (err) return;
+                      room_id = result.insertId;
+                      saveAndEmit(room_id);
+                    }
+                  );
+                }
+              );
             }
           );
         }

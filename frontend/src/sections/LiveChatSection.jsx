@@ -17,6 +17,7 @@ export default function LiveChatSection({ user, chatType }) {
   const [imageUploading, setImageUploading] = useState(false);
   const [imageModal, setImageModal] = useState(null); // url de imagen ampliada
   const fileInputRef = useRef();
+  const [chatError, setChatError] = useState("");
 
   // Todos los hooks van aquí, antes de cualquier return condicional
   useEffect(() => {
@@ -52,6 +53,17 @@ export default function LiveChatSection({ user, chatType }) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    socket.off("chat_error");
+    socket.on("chat_error", (data) => {
+      setChatError(data.error || "Error desconocido al crear el chat.");
+      setTimeout(() => setChatError(""), 4000);
+    });
+    return () => {
+      socket.off("chat_error");
+    };
+  }, []);
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -241,6 +253,9 @@ export default function LiveChatSection({ user, chatType }) {
   return (
     <section className="live-chat-section" style={{ background: '#fff8ef', minHeight: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 0 2rem 0' }}>
       <div className="live-chat-container" style={{ background: 'none', border: 'none', borderRadius: 0, boxShadow: 'none', maxWidth: '1100px', width: '100%', minHeight: '600px', display: 'flex', flexDirection: 'column', alignItems: 'stretch', padding: 0 }}>
+        {chatError && (
+          <div className="auth-modal-tooltip error" style={{ margin: '0 auto 1.5em auto', maxWidth: 400, textAlign: 'center' }}>{chatError}</div>
+        )}
         <div style={{ width: '100%' }}>
           {chatLists}
         </div>

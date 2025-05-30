@@ -26,9 +26,19 @@ router.post("/register", (req, res) => {
       (err, result) => {
         if (err)
           return res.status(500).json({ error: "Error al registrar usuario" });
-        // Devolver el usuario creado (sin contraseña)
-        const newUser = { id: result.insertId, username, email, gender };
-        res.status(201).json({ user: newUser });
+        // Obtener el usuario recién creado con created_at
+        db.query(
+          "SELECT id, username, email, gender, created_at FROM users WHERE id = ?",
+          [result.insertId],
+          (err2, results) => {
+            if (err2 || !results[0])
+              return res
+                .status(500)
+                .json({ error: "Error al obtener usuario" });
+            const newUser = results[0];
+            res.status(201).json({ user: newUser });
+          }
+        );
       }
     );
   });
@@ -41,7 +51,7 @@ router.post("/login", (req, res) => {
     return res.status(400).json({ error: "Faltan email o contraseña" });
   }
   db.query(
-    "SELECT id, username, email, gender, password FROM users WHERE email = ?",
+    "SELECT id, username, email, gender, password, created_at FROM users WHERE email = ?",
     [email],
     (err, results) => {
       if (err)
@@ -59,6 +69,7 @@ router.post("/login", (req, res) => {
         username: user.username,
         email: user.email,
         gender: user.gender,
+        created_at: user.created_at,
       };
       // No enviar la contraseña al frontend
       delete user.password;
@@ -70,7 +81,21 @@ router.post("/login", (req, res) => {
 // Obtener usuario autenticado (autologin)
 router.get("/me", (req, res) => {
   if (req.session.user) {
-    res.json(req.session.user);
+    // Si falta created_at en sesión, lo recuperamos de la BD
+    if (!req.session.user.created_at) {
+      db.query(
+        "SELECT created_at FROM users WHERE id = ?",
+        [req.session.user.id],
+        (err, results) => {
+          if (!err && results[0]) {
+            req.session.user.created_at = results[0].created_at;
+          }
+          res.json(req.session.user);
+        }
+      );
+    } else {
+      res.json(req.session.user);
+    }
   } else {
     res.status(401).json({ error: "No autenticado" });
   }
