@@ -22,19 +22,43 @@ export default function DonnorSection() {
   const [editError, setEditError] = useState("");
   const [editLoading, setEditLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [unauthorized, setUnauthorized] = useState(false);
+
+  // Fetch de animales donados por el usuario con control de sesión y errores
+  const fetchMyDonated = async () => {
+    setLoading(true);
+    setError("");
+    setUnauthorized(false);
+    try {
+      const res = await fetch('/api/animals/my-donated', { credentials: 'include' });
+      if (res.status === 401) {
+        setUnauthorized(true);
+        setMyDonated([]);
+      } else if (!res.ok) {
+        setError("Error al cargar tus donaciones. Intenta de nuevo más tarde.");
+        setMyDonated([]);
+      } else {
+        const data = await res.json();
+        setMyDonated(Array.isArray(data) ? data : []);
+      }
+    } catch {
+      setError("Error de conexión. Intenta de nuevo más tarde.");
+      setMyDonated([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetch('/api/animals/my-donated')
-      .then(res => res.json())
-      .then(data => setMyDonated(data));
+    fetchMyDonated();
   }, [success]);
 
   // Refrescar lista cada 2 segundos para que desaparezcan los adoptados
   useEffect(() => {
     const interval = setInterval(() => {
-      fetch('/api/animals/my-donated')
-        .then(res => res.json())
-        .then(data => setMyDonated(data));
+      fetchMyDonated();
     }, 2000);
     return () => clearInterval(interval);
   }, []);
@@ -124,6 +148,7 @@ export default function DonnorSection() {
     const res = await fetch(`/api/animals/${editAnimal.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         ...editForm,
         age: Number(editForm.age) || 0,
@@ -136,10 +161,7 @@ export default function DonnorSection() {
       setEditForm(null);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 1200);
-      // Refrescar lista
-      fetch('/api/animals/my-donated')
-        .then(res => res.json())
-        .then(data => setMyDonated(data));
+      fetchMyDonated();
     } else {
       const data = await res.json().catch(() => ({}));
       setEditError(data.error || "Error al guardar cambios.");
@@ -152,15 +174,13 @@ export default function DonnorSection() {
     if (!window.confirm("¿Seguro que quieres eliminar esta ficha? Esta acción no se puede deshacer.")) return;
     setDeleteLoading(true);
     setEditError("");
-    const res = await fetch(`/api/animals/${editAnimal.id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/animals/${editAnimal.id}`, { method: 'DELETE', credentials: 'include' });
     if (res.ok) {
       setEditAnimal(null);
       setEditForm(null);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 1200);
-      fetch('/api/animals/my-donated')
-        .then(res => res.json())
-        .then(data => setMyDonated(data));
+      fetchMyDonated();
     } else {
       const data = await res.json().catch(() => ({}));
       setEditError(data.error || "Error al eliminar la ficha.");
@@ -205,7 +225,13 @@ export default function DonnorSection() {
       </div>
       {/* Grid de animales donados por el usuario */}
       <div className="adoptar-grid donnor-animal-grid">
-        {myDonated.length === 0 ? (
+        {loading ? (
+          <div className="donnor-empty-msg">Cargando tus donaciones...</div>
+        ) : unauthorized ? (
+          <div className="donnor-empty-msg error">Debes iniciar sesión para ver tus donaciones.</div>
+        ) : error ? (
+          <div className="donnor-empty-msg error">{error}</div>
+        ) : myDonated.length === 0 ? (
           <div className="donnor-empty-msg">
             No has donado ningún animal todavía.
           </div>
@@ -331,7 +357,7 @@ export default function DonnorSection() {
                 )}
                 <input id="edit-image-input" type="file" accept="image/*" onChange={handleEditFileChange} className="donnor-modal-img-input" />
               </label>
-              {editLoading && <p className="donnor-modal-uploading">Subiendo imagen...</p>}
+              {editLoading && <p className="donnor-modal_uploading">Subiendo imagen...</p>}
               <h2 className="adoptar-modal-animal-name">{editForm.name}</h2>
             </div>
             <form className="donar-form donnor-modal-form-flex" onSubmit={handleEditSave}>

@@ -54,8 +54,20 @@ function App() {
       }
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Error de autenticación');
+      if (data.mode === 'register') {
+        // Registro exitoso: NO autologin, mostrar mensaje y forzar login manual
+        setAuthMessage({ type: 'success', text: '¡Registro completado! Ahora inicia sesión para continuar.' });
+        setTimeout(() => {
+          setAuthMessage(null);
+        }, 2500);
+        // Forzar modo login en AuthModal
+        if (typeof window.setAuthModalMode === 'function') {
+          window.setAuthModalMode('login');
+        }
+        return;
+      }
       setUser(result.user);
-      setAuthMessage({ type: 'success', text: data.mode === 'login' ? '¡Bienvenido/a!' : '¡Registro completado!' });
+      setAuthMessage({ type: 'success', text: '¡Bienvenido/a!' });
       setTimeout(() => {
         setAuthOpen(false);
         setAuthMessage(null);

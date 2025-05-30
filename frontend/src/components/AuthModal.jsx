@@ -28,6 +28,8 @@ export default function AuthModal({ open, onClose, onAuth, message }) {
     if (open) {
       setErrors({});
       setForm({ username: '', email: '', password: '', gender: '' });
+      // Permitir forzar el modo desde window.setAuthModalMode
+      window.setAuthModalMode = (mode) => setMode(mode);
       setMode('login');
     }
   }, [open]);

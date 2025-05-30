@@ -11,18 +11,32 @@ export default function PerfilSection() {
   const [passwordError, setPasswordError] = useState('');
 
   useEffect(() => {
-    fetch('/api/users/me')
-      .then(res => res.json())
+    fetch('/api/users/me', { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) throw new Error('401');
+        return res.json();
+      })
       .then(data => {
         setUser(data);
         setEditForm(data);
+      })
+      .catch(() => {
+        setUser(null);
       });
-    fetch('/api/animals/my-adopted')
-      .then(res => res.json())
-      .then(data => setAdopted(data));
-    fetch('/api/animals/my-donated')
-      .then(res => res.json())
-      .then(data => setDonated(data));
+    fetch('/api/animals/my-adopted', { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) throw new Error('401');
+        return res.json();
+      })
+      .then(data => setAdopted(Array.isArray(data) ? data : []))
+      .catch(() => setAdopted([]));
+    fetch('/api/animals/my-donated', { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) throw new Error('401');
+        return res.json();
+      })
+      .then(data => setDonated(Array.isArray(data) ? data : []))
+      .catch(() => setDonated([]));
   }, []);
 
   const handleEditChange = e => {
@@ -46,6 +60,7 @@ export default function PerfilSection() {
     const res = await fetch('/api/users/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(editForm)
     });
     if (res.ok) {
@@ -53,18 +68,12 @@ export default function PerfilSection() {
       setUser(updated);
       setEditModalOpen(false);
       setPasswords({ password: '', confirm: '' });
+    } else if (res.status === 401) {
+      setPasswordError('No autorizado. Por favor, inicia sesión de nuevo.');
     }
   };
 
   if (!user) return <section className="perfil-section"><p>Cargando perfil...</p></section>;
-
-  // Campos de la tabla users (sin rol, sin lat/lng)
-  const fields = [
-    { label: 'Nombre de usuario', key: 'username' },
-    { label: 'Email', key: 'email' },
-    { label: 'Género', key: 'gender' },
-    { label: 'Fecha de registro', key: 'created_at' }
-  ];
 
   // Opciones de género igual que en el registro
   const genderOptions = [
