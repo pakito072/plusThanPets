@@ -6,11 +6,16 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
   const [animals, setAnimals] = useState([]);
   const [modalAnimal, setModalAnimal] = useState(null);
   const [chatError, setChatError] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     fetch('/api/animals?available=1')
       .then(res => res.json())
       .then(data => setAnimals(data));
+    // Obtener usuario logueado
+    fetch('/api/users/me', { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => setUser(data));
   }, []);
 
   // Refrescar lista cuando se adopta un animal (por si vuelve del chat)
@@ -59,11 +64,14 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
     setModalAnimal(null);
   };
 
+  // Filtrar animales: si hay usuario, excluir los que sean suyos
+  const animalsToShow = user ? animals.filter(a => a.owner_id !== user.id) : animals;
+
   return (
     <section className="adoptar-section">
       <h1 className="section-title">Adoptar</h1>
       <div className="adoptar-grid">
-        {animals.map(animal => (
+        {animalsToShow.map(animal => (
           <div
             key={animal.id}
             className="adoptar-card"

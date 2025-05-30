@@ -10,7 +10,7 @@ import SideMenu from './components/SideMenu';
 import AuthModal from './components/AuthModal';
 
 function App() {
-  const [section, setSection] = useState('home');
+  const [section, setSectionState] = useState(() => localStorage.getItem('section') || 'home');
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [authMessage, setAuthMessage] = useState(null); // { type: 'success'|'error', text: string }
@@ -32,6 +32,11 @@ function App() {
     window.addEventListener('open-auth-modal', openAuthModalListener);
     return () => window.removeEventListener('open-auth-modal', openAuthModalListener);
   }, []);
+
+  const setSection = (sec) => {
+    setSectionState(sec);
+    localStorage.setItem('section', sec);
+  };
 
   const handleAuth = async (data) => {
     setAuthMessage(null);
