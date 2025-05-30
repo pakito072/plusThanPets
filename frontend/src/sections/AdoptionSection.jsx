@@ -70,25 +70,26 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
               <h2 className="adoptar-modal-animal-name">{modalAnimal.name}</h2>
             </div>
             <div className="adoptar-modal-info-wrapper">
-            <div className="adoptar-modal-info-cols">
-              <div className="adoptar-modal-info-col">
-                <p><b>Tipo:</b> {modalAnimal.type === 'dog' ? 'Perro' : 'Gato'}</p>
-                <p><b>Raza:</b> {modalAnimal.breed}</p>
-                <p><b>Edad:</b> {modalAnimal.age} años</p>
+              <div className="adoptar-modal-info-cols">
+                <div className="adoptar-modal-info-col">
+                  <p><b>Tipo:</b> {modalAnimal.type === 'dog' ? 'Perro' : 'Gato'}</p>
+                  <p><b>Raza:</b> {modalAnimal.breed}</p>
+                  <p><b>Edad:</b> {modalAnimal.age} años</p>
+                </div>
+                <div className="adoptar-modal-info-col">
+                  <p><b>Género:</b> {modalAnimal.gender === 'male' ? 'Macho' : 'Hembra'}</p>
+                  <p><b>Descripción:</b> {modalAnimal.description}</p>
+                  <p><b>Publicado:</b> {new Date(modalAnimal.created_at).toLocaleDateString()}</p>
+                </div>
               </div>
-              <div className="adoptar-modal-info-col">
-                <p><b>Género:</b> {modalAnimal.gender === 'male' ? 'Macho' : 'Hembra'}</p>
-                <p><b>Descripción:</b> {modalAnimal.description}</p>
-                <p><b>Publicado:</b> {new Date(modalAnimal.created_at).toLocaleDateString()}</p>
-              </div>
-            </div>
-            {chatError && <div className="auth-modal-tooltip error" style={{ margin: '0 auto 1em auto', maxWidth: 400, textAlign: 'center' }}>{chatError}</div>}
-            <div className="adoptar-modal-actions">
-              <button className="adoptar-modal-chat" onClick={() => handleChat(modalAnimal)}>
-                Chat
-              </button>
-              <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>
-                Cerrar</button>
+              {chatError && <div className="auth-modal-tooltip error" style={{ margin: '0 auto 1em auto', maxWidth: 400, textAlign: 'center' }}>{chatError}</div>}
+              <div className="adoptar-modal-actions">
+                <button className="adoptar-modal-chat" onClick={() => handleChat(modalAnimal)}>
+                  Chat
+                </button>
+                <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>
+                  Cerrar
+                </button>
               </div>
             </div>
           </>
