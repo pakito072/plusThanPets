@@ -160,10 +160,13 @@ export default function LiveChatSection({ user, chatType }) {
     </div>
   );
 
+  // Filtrar chats de adopción para que no se repitan si el usuario es dueño
+  const filteredAdoptionChats = adoptionChats.filter(chat => chat.owner_id !== user.id);
+
   // Nuevo layout: dos columnas horizontales para las listas de chats, cada una desplegable
   let chatLists = null;
   if (chatType === "adoptante") {
-    chatLists = renderChatList(adoptionChats, "Chats de Adopción");
+    chatLists = renderChatList(filteredAdoptionChats, "Chats de Adopción");
   } else if (chatType === "donnor") {
     chatLists = renderChatList(donationChats, "Chats de Donaciones");
   } else {
@@ -180,13 +183,13 @@ export default function LiveChatSection({ user, chatType }) {
           </div>
           {adoptionOpen && (
             <>
-              {adoptionChats.length === 0 && (
+              {filteredAdoptionChats.length === 0 && (
                 <div className="live-chat-list-empty" style={{ textAlign: 'center', padding: '1.5em 0', color: '#a05a2c', opacity: 0.7 }}>
                   No hay chats.
                 </div>
               )}
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {adoptionChats.map(chat => (
+                {filteredAdoptionChats.map(chat => (
                   <li key={chat.room_id} style={{ marginBottom: '1.2em', display: 'flex', alignItems: 'center', gap: '1em' }}>
                     <button
                       style={{ background: 'none', border: 'none', color: '#a05a2c', fontWeight: 700, fontSize: '1.1em', cursor: 'pointer', textAlign: 'left', flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}
@@ -355,10 +358,17 @@ export default function LiveChatSection({ user, chatType }) {
                   style={{ maxWidth: 220 }}
                   onClick={async () => {
                     if (!window.confirm('¿Seguro que quieres aceptar el trato y finalizar la adopción?')) return;
+                    // Buscar el adoptante real: primer mensaje que NO sea del donador
+                    const adopterMsg = messages.find(msg => msg.sender_id !== user.id);
+                    const adopterId = adopterMsg ? adopterMsg.sender_id : null;
+                    if (!adopterId) {
+                      alert('No se puede determinar el adoptante. El chat debe tener al menos un mensaje del interesado.');
+                      return;
+                    }
                     await fetch(`/api/animals/${activeChat.animal_id}/adopt`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ adopter_id: activeChat.adopter_id || (activeChat.interested_id || user.id) })
+                      body: JSON.stringify({ adopter_id: adopterId })
                     });
                     handleClose(activeChat.room_id);
                   }}

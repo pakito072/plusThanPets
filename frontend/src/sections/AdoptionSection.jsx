@@ -23,7 +23,7 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Nuevo handleChat con validación
+  // Nuevo handleChat con validación y creación de chat si no existe
   const handleChat = async (animal) => {
     setChatError("");
     // Comprobar si el usuario ya tiene un chat de adopción abierto
@@ -37,6 +37,20 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
     const chatsData = await chatsRes.json();
     if ((chatsData.adoptionChats || []).length > 0) {
       setChatError("Solo puedes tener un chat de adopción abierto a la vez. Cierra el anterior para abrir uno nuevo.");
+      return;
+    }
+    // Crear el chat si no existe
+    const createRes = await fetch('/api/chat/room', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        animal_id: animal.id,
+        type: 'adoption'
+      })
+    });
+    if (!createRes.ok) {
+      setChatError("No se pudo crear el chat. Inténtalo de nuevo.");
       return;
     }
     // Guardar el animal a abrir en localStorage para que LiveChatSection lo recoja

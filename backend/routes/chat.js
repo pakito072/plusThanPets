@@ -75,10 +75,54 @@ router.get("/room/:roomId/messages", (req, res) => {
 // Eliminar/cerrar un chat (solo si el usuario es dueño o interesado)
 router.delete("/room/:roomId", (req, res) => {
   const roomId = parseInt(req.params.roomId);
-  db.query("DELETE FROM chat_rooms WHERE id = ?", [roomId], (err, result) => {
-    if (err) return res.status(500).json({ error: "Error al eliminar chat" });
-    res.json({ success: true });
+  // Eliminar primero los mensajes del chat
+  db.query("DELETE FROM chat_messages WHERE room_id = ?", [roomId], (err) => {
+    if (err)
+      return res
+        .status(500)
+        .json({ error: "Error al eliminar mensajes del chat" });
+    // Luego eliminar la sala de chat
+    db.query("DELETE FROM chat_rooms WHERE id = ?", [roomId], (err2) => {
+      if (err2)
+        return res.status(500).json({ error: "Error al eliminar chat" });
+      res.json({ success: true });
+    });
   });
+});
+
+// Crear sala de chat por HTTP (para adopción)
+router.post("/room", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "No autenticado" });
+  }
+  const { animal_id, type } = req.body;
+  if (!animal_id) {
+    return res.status(400).json({ error: "Falta el id del animal" });
+  }
+  // Comprobar si ya existe un chat para este animal
+  db.query(
+    "SELECT id FROM chat_rooms WHERE animal_id = ?",
+    [animal_id],
+    (err, results) => {
+      if (err)
+        return res.status(500).json({ error: "Error en la base de datos" });
+      if (results.length > 0) {
+        return res
+          .status(400)
+          .json({ error: "Ya existe un chat para este animal" });
+      }
+      // Crear el chat
+      db.query(
+        "INSERT INTO chat_rooms (animal_id, created_at) VALUES (?, NOW())",
+        [animal_id],
+        (err2, result) => {
+          if (err2)
+            return res.status(500).json({ error: "Error al crear el chat" });
+          res.status(201).json({ room_id: result.insertId });
+        }
+      );
+    }
+  );
 });
 
 module.exports = router;
