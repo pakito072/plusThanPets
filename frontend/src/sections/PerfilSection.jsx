@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import Modal from '../components/Modal';
 
 export default function PerfilSection() {
   const [user, setUser] = useState(null);
   const [adopted, setAdopted] = useState([]);
   const [donated, setDonated] = useState([]);
-  const [editMode, setEditMode] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [passwords, setPasswords] = useState({ password: '', confirm: '' });
   const [passwordError, setPasswordError] = useState('');
@@ -50,7 +51,7 @@ export default function PerfilSection() {
     if (res.ok) {
       const updated = await res.json();
       setUser(updated);
-      setEditMode(false);
+      setEditModalOpen(false);
       setPasswords({ password: '', confirm: '' });
     }
   };
@@ -78,86 +79,102 @@ export default function PerfilSection() {
     <section className="perfil-section">
       <h1 className="section-title">Perfil</h1>
       <div className="perfil-info">
-        {!editMode ? (
-          <>
-            <p><b>Nombre de usuario:</b> {user.username || 'No hay información'}</p>
-            <p><b>Email:</b> {user.email || 'No hay información'}</p>
-            <p><b>Género:</b> {user.gender ? genderOptions.find(g => g.value === user.gender)?.label : 'No hay información'}</p>
-            <p><b>Fecha de registro:</b> {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'No hay información'}</p>
-            <button className="auth-modal-submit" onClick={() => setEditMode(true)}>Editar</button>
-          </>
-        ) : (
-          <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1em' }}>
-            <label style={{ fontWeight: 700 }}>
-              Nombre de usuario:
-              <input
-                name="username"
-                value={editForm.username ?? ''}
-                onChange={handleEditChange}
-                style={{ marginLeft: 8, padding: '0.5em', borderRadius: 8, border: '1.5px solid #a05a2c', fontWeight: 500 }}
-              />
-            </label>
-            <label style={{ fontWeight: 700 }}>
-              Email:
-              <input
-                name="email"
-                value={editForm.email ?? ''}
-                disabled
-                style={{ marginLeft: 8, padding: '0.5em', borderRadius: 8, border: '1.5px solid #a05a2c', fontWeight: 500 }}
-              />
-            </label>
-            <label style={{ fontWeight: 700 }}>
-              Género:
+        <>
+          <p><b>Nombre de usuario:</b> {user.username || 'No hay información'}</p>
+          <p><b>Email:</b> {user.email || 'No hay información'}</p>
+          <p><b>Género:</b> {user.gender ? genderOptions.find(g => g.value === user.gender)?.label : 'No hay información'}</p>
+          <p><b>Fecha de registro:</b> {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'No hay información'}</p>
+          <button className="auth-modal-submit" onClick={() => setEditModalOpen(true)}>Editar</button>
+        </>
+      </div>
+      <Modal open={editModalOpen} onClose={() => { setEditModalOpen(false); setPasswords({ password: '', confirm: '' }); }}>
+        <form onSubmit={handleEditSubmit} className="auth-modal-form perfil-edit-modal perfil-edit-modal-form" style={{ alignItems: 'center', justifyContent: 'center', display: 'flex' }}>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontWeight: 700, marginBottom: 4, alignSelf: 'center' }}>Nombre de usuario:</div>
+            <input
+              name="username"
+              value={editForm.username ?? ''}
+              onChange={handleEditChange}
+              className="auth-modal-input"
+              autoComplete="username"
+              placeholder="Introduce tu nombre de usuario"
+              style={{ textAlign: 'center' }}
+            />
+          </div>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontWeight: 700, marginBottom: 4, alignSelf: 'center' }}>Email:</div>
+            <input
+              name="email"
+              value={editForm.email ?? ''}
+              disabled
+              className="auth-modal-input"
+              placeholder="Tu email"
+              style={{ textAlign: 'center' }}
+            />
+          </div>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontWeight: 700, marginBottom: 4, alignSelf: 'center' }}>Género:</div>
+            <div className="auth-modal-select-wrapper" style={{ width: '100%' }}>
               <select
                 name="gender"
                 value={editForm.gender ?? ''}
                 onChange={handleEditChange}
-                style={{ marginLeft: 8, padding: '0.5em', borderRadius: 8, border: '1.5px solid #a05a2c', fontWeight: 500 }}
+                className="auth-modal-select"
+                style={{ textAlign: 'center' }}
               >
                 {genderOptions.map(opt => (
-                  <option key={opt.value} value={opt.value} disabled={opt.disabled}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value} disabled={opt.disabled} hidden={opt.value === ''}>{opt.label}</option>
                 ))}
               </select>
-            </label>
-            <label style={{ fontWeight: 700 }}>
-              Fecha de registro:
-              <input
-                name="created_at"
-                value={user.created_at ? new Date(user.created_at).toLocaleDateString() : ''}
-                disabled
-                style={{ marginLeft: 8, padding: '0.5em', borderRadius: 8, border: '1.5px solid #a05a2c', fontWeight: 500 }}
-              />
-            </label>
-            <label style={{ fontWeight: 700 }}>
-              Nueva contraseña:
-              <input
-                type="password"
-                name="password"
-                value={passwords.password}
-                onChange={handlePasswordChange}
-                autoComplete="new-password"
-                style={{ marginLeft: 8, padding: '0.5em', borderRadius: 8, border: '1.5px solid #a05a2c', fontWeight: 500 }}
-              />
-            </label>
-            <label style={{ fontWeight: 700 }}>
-              Confirmar contraseña:
-              <input
-                type="password"
-                name="confirm"
-                value={passwords.confirm}
-                onChange={handlePasswordChange}
-                autoComplete="new-password"
-                style={{ marginLeft: 8, padding: '0.5em', borderRadius: 8, border: '1.5px solid #a05a2c', fontWeight: 500 }}
-              />
-            </label>
-            {passwordError && <div style={{ color: '#a05a2c', background: '#ffcf8e', borderRadius: 8, padding: 8 }}>{passwordError}</div>}
-            <div style={{ display: 'flex', gap: '1em', marginTop: 8 }}>
-              <button className="auth-modal-submit" type="submit">Guardar</button>
-              <button className="auth-modal-submit" type="button" style={{ background: '#ffcf8e', color: '#a05a2c' }} onClick={() => { setEditMode(false); setPasswords({ password: '', confirm: '' }); }}>Cancelar</button>
+              <span className="auth-modal-select-arrow">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a05a2c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+              </span>
             </div>
-          </form>
-        )}
-      </div>
+          </div>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontWeight: 700, marginBottom: 4, alignSelf: 'center' }}>Fecha de registro:</div>
+            <input
+              name="created_at"
+              value={user.created_at ? new Date(user.created_at).toLocaleDateString() : ''}
+              disabled
+              className="auth-modal-input"
+              placeholder="Fecha de registro"
+              style={{ textAlign: 'center' }}
+            />
+          </div>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontWeight: 700, marginBottom: 4, alignSelf: 'center' }}>Nueva contraseña:</div>
+            <input
+              type="password"
+              name="password"
+              value={passwords.password}
+              onChange={handlePasswordChange}
+              autoComplete="new-password"
+              className="auth-modal-input"
+              placeholder="Nueva contraseña"
+              style={{ textAlign: 'center' }}
+            />
+          </div>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontWeight: 700, marginBottom: 4, alignSelf: 'center' }}>Confirmar contraseña:</div>
+            <input
+              type="password"
+              name="confirm"
+              value={passwords.confirm}
+              onChange={handlePasswordChange}
+              autoComplete="new-password"
+              className="auth-modal-input"
+              placeholder="Repite la contraseña"
+              style={{ textAlign: 'center' }}
+            />
+          </div>
+          {passwordError && <div className="auth-modal-error">{passwordError}</div>}
+          <div style={{ display: 'flex', gap: '1em', marginTop: 8, justifyContent: 'center' }}>
+            <button className="auth-modal-submit" type="submit">Guardar</button>
+            <button className="auth-modal-submit" type="button" onClick={() => { setEditModalOpen(false); setPasswords({ password: '', confirm: '' }); }}>Cancelar</button>
+          </div>
+        </form>
+      </Modal>
       <div className="perfil-adoptions">
         <h2>Animales que he adoptado</h2>
         {adopted.length === 0 ? (
