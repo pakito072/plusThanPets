@@ -81,7 +81,7 @@ router.get("/my-donated", (req, res) => {
   }
   const userId = req.session.user.id;
   db.query(
-    "SELECT id, type, name, breed, age, gender, description, image_url, created_at FROM animals WHERE owner_id = ? AND (adopted_by IS NULL OR adopted_by = 0) ORDER BY created_at DESC",
+    "SELECT id, type, name, breed, age, gender, description, image_url, created_at, adopted_by FROM animals WHERE owner_id = ? ORDER BY created_at DESC",
     [userId],
     (err, results) => {
       if (err)
