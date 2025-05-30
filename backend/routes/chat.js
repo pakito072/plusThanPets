@@ -9,7 +9,7 @@ router.get("/", (req, res) => {
 // Obtener todos los chats donde el usuario participa (como interesado o donante)
 router.get("/user/:userId", (req, res) => {
   const userId = parseInt(req.params.userId);
-  // Chats como interesado (mensajes enviados por el usuario)
+  // Chats como interesado (solo los relacionados con el usuario)
   const adoptionChatsQuery = `
     SELECT cr.id as room_id, cr.animal_id, a.name as animal_name, a.owner_id, u.username as owner_name,
            MAX(cm.created_at) as last_message_at, MAX(cm.id) as last_message_id
@@ -19,6 +19,10 @@ router.get("/user/:userId", (req, res) => {
     LEFT JOIN chat_messages cm ON cr.id = cm.room_id
     WHERE cr.id IN (
       SELECT room_id FROM chat_messages WHERE sender_id = ?
+      UNION
+      SELECT id FROM chat_rooms WHERE animal_id IN (SELECT id FROM animals WHERE adopted_by IS NULL OR adopted_by = 0) AND id NOT IN (SELECT room_id FROM chat_messages)
+        AND NOT EXISTS (SELECT 1 FROM chat_messages WHERE room_id = cr.id AND sender_id != ?)
+        AND NOT EXISTS (SELECT 1 FROM chat_messages WHERE room_id = cr.id AND sender_id = ? AND sender_id != ?)
     )
     GROUP BY cr.id
     ORDER BY last_message_at DESC
@@ -35,19 +39,23 @@ router.get("/user/:userId", (req, res) => {
     GROUP BY cr.id
     ORDER BY last_message_at DESC
   `;
-  db.query(adoptionChatsQuery, [userId], (err, adoptionChats) => {
-    if (err)
-      return res
-        .status(500)
-        .json({ error: "Error en la base de datos (adoption)" });
-    db.query(donationChatsQuery, [userId], (err2, donationChats) => {
-      if (err2)
+  db.query(
+    adoptionChatsQuery,
+    [userId, userId, userId, userId],
+    (err, adoptionChats) => {
+      if (err)
         return res
           .status(500)
-          .json({ error: "Error en la base de datos (donation)" });
-      res.json({ adoptionChats, donationChats });
-    });
-  });
+          .json({ error: "Error en la base de datos (adoption)" });
+      db.query(donationChatsQuery, [userId], (err2, donationChats) => {
+        if (err2)
+          return res
+            .status(500)
+            .json({ error: "Error en la base de datos (donation)" });
+        res.json({ adoptionChats, donationChats });
+      });
+    }
+  );
 });
 
 // Obtener historial de mensajes de un chat

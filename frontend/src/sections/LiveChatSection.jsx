@@ -27,6 +27,16 @@ export default function LiveChatSection({ user, chatType }) {
       .then(data => {
         setAdoptionChats(data.adoptionChats || []);
         setDonationChats(data.donationChats || []);
+        // Abrir chat automáticamente si hay openChatAnimalId
+        const openChatAnimalId = localStorage.getItem('openChatAnimalId');
+        if (openChatAnimalId) {
+          // Buscar en los chats de adopción
+          const found = (data.adoptionChats || []).find(c => String(c.animal_id) === String(openChatAnimalId));
+          if (found) {
+            setActiveChat(found);
+            localStorage.removeItem('openChatAnimalId');
+          }
+        }
       });
   }, [user]);
 
@@ -324,6 +334,37 @@ export default function LiveChatSection({ user, chatType }) {
               </button>
             </form>
             {imageUploading && <div style={{ color: '#a05a2c', fontWeight: 600, fontSize: '1rem', textAlign: 'center', margin: '0.5em 0' }}>Subiendo imagen...</div>}
+            {/* BOTONES DEBAJO DEL CHAT */}
+            <div style={{ display: 'flex', gap: '1.2rem', justifyContent: 'center', padding: '1.2rem 0 1.2rem 0', borderTop: '2px solid #ffcf8e', marginTop: 16 }}>
+              <button
+                className="adoptar-modal-close"
+                style={{ maxWidth: 220 }}
+                onClick={() => {
+                  alert('La conversación se cerrará y eliminará.');
+                  handleClose(activeChat.room_id);
+                }}
+              >
+                Cerrar chat
+              </button>
+              {/* Solo el donante puede aceptar trato (adoptar) */}
+              {user && activeChat && user.id === activeChat.owner_id && (
+                <button
+                  className="adoptar-modal-chat"
+                  style={{ maxWidth: 220 }}
+                  onClick={async () => {
+                    if (!window.confirm('¿Seguro que quieres aceptar el trato y finalizar la adopción?')) return;
+                    await fetch(`/api/animals/${activeChat.animal_id}/adopt`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ adopter_id: activeChat.adopter_id || (activeChat.interested_id || user.id) })
+                    });
+                    handleClose(activeChat.room_id);
+                  }}
+                >
+                  Aceptar trato (adoptar)
+                </button>
+              )}
+            </div>
           </div>
         )}
         {!activeChat && <div className="live-chat-placeholder">Selecciona un chat para comenzar.</div>}

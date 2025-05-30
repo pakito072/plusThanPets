@@ -12,6 +12,16 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
       .then(data => setAnimals(data));
   }, []);
 
+  // Refrescar lista cuando se adopta un animal (por si vuelve del chat)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch('/api/animals?available=1')
+        .then(res => res.json())
+        .then(data => setAnimals(data));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Nuevo handleChat con validación
   const handleChat = async (animal) => {
     setChatError("");

@@ -28,6 +28,16 @@ export default function DonnorSection() {
       .then(data => setMyDonated(data));
   }, [success]);
 
+  // Refrescar lista cada 2 segundos para que desaparezcan los adoptados
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch('/api/animals/my-donated')
+        .then(res => res.json())
+        .then(data => setMyDonated(data));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleChange = e => {
     const { name, value } = e.target;
     // Validación en tiempo real

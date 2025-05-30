@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 export default function PerfilSection() {
   const [user, setUser] = useState(null);
-  const [adoptions, setAdoptions] = useState([]);
+  const [adopted, setAdopted] = useState([]);
   const [donated, setDonated] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState({});
@@ -16,9 +16,9 @@ export default function PerfilSection() {
         setUser(data);
         setEditForm(data);
       });
-    fetch('/api/animals/my-adoptions')
+    fetch('/api/animals/my-adopted')
       .then(res => res.json())
-      .then(data => setAdoptions(data));
+      .then(data => setAdopted(data));
     fetch('/api/animals/my-donated')
       .then(res => res.json())
       .then(data => setDonated(data));
@@ -159,13 +159,16 @@ export default function PerfilSection() {
         )}
       </div>
       <div className="perfil-adoptions">
-        <h2>Mis adopciones</h2>
-        {adoptions.length === 0 ? (
+        <h2>Animales que he adoptado</h2>
+        {adopted.length === 0 ? (
           <p>No has adoptado ningún animal todavía.</p>
         ) : (
           <ul>
-            {adoptions.map(ad => (
-              <li key={ad.adoption_id}>{ad.animal_name} ({ad.animal_type})</li>
+            {adopted.map(animal => (
+              <li key={animal.id}>
+                <img src={animal.image_url} alt={animal.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, marginRight: 8, verticalAlign: 'middle' }} />
+                <b>{animal.name}</b> ({animal.type}) - {animal.breed}, {animal.age} años
+              </li>
             ))}
           </ul>
         )}

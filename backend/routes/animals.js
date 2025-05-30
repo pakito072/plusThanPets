@@ -81,7 +81,7 @@ router.get("/my-donated", (req, res) => {
   }
   const userId = req.session.user.id;
   db.query(
-    "SELECT id, type, name, breed, age, gender, description, image_url, created_at FROM animals WHERE owner_id = ? ORDER BY created_at DESC",
+    "SELECT id, type, name, breed, age, gender, description, image_url, created_at FROM animals WHERE owner_id = ? AND (adopted_by IS NULL OR adopted_by = 0) ORDER BY created_at DESC",
     [userId],
     (err, results) => {
       if (err)
@@ -112,6 +112,51 @@ router.get("/my-adoptions", (req, res) => {
       return res.status(500).json({ error: "Error al obtener adopciones" });
     res.json(results);
   });
+});
+
+// Marcar animal como adoptado
+router.post("/:id/adopt", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "No autenticado" });
+  }
+  const animalId = parseInt(req.params.id);
+  const { adopter_id } = req.body;
+  if (!adopter_id) {
+    return res.status(400).json({ error: "Falta el id del adoptante" });
+  }
+  // Solo puede adoptar si el animal no está adoptado
+  db.query(
+    "UPDATE animals SET adopted_by = ? WHERE id = ? AND (adopted_by IS NULL OR adopted_by = 0)",
+    [adopter_id, animalId],
+    (err, result) => {
+      if (err)
+        return res.status(500).json({ error: "Error al actualizar adopción" });
+      if (result.affectedRows === 0)
+        return res
+          .status(400)
+          .json({ error: "El animal ya está adoptado o no existe" });
+      res.json({ ok: true });
+    }
+  );
+});
+
+// Obtener animales adoptados por el usuario autenticado
+router.get("/my-adopted", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "No autenticado" });
+  }
+  const userId = req.session.user.id;
+  db.query(
+    "SELECT id, type, name, breed, age, gender, description, image_url, created_at, owner_id FROM animals WHERE adopted_by = ? ORDER BY created_at DESC",
+    [userId],
+    (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ error: "Error al obtener animales adoptados" });
+      res.json(results);
+    }
+  );
 });
 
 module.exports = router;
