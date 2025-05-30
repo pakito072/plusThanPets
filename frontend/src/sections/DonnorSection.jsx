@@ -314,7 +314,7 @@ export default function DonnorSection() {
             </div>
           </div>
           {backendError && (
-            <div className="auth-modal-tooltip error donnor-modal-error">
+            <div className="auth-modal-tooltip error donnor-modal-error" style={{ marginTop: '2.5em', marginBottom: '0.5em' }}>
               {backendError}
             </div>
           )}

@@ -7,7 +7,8 @@ router.get("/", (req, res) => {
   let sql = "SELECT * FROM animals";
   let params = [];
   if (onlyAvailable) {
-    sql += " WHERE adopted_by IS NULL OR adopted_by = 0";
+    sql +=
+      " WHERE (adopted_by IS NULL OR adopted_by = 0) AND id NOT IN (SELECT animal_id FROM chat_rooms)";
   }
   db.query(sql, params, (err, results) => {
     if (err)
@@ -22,20 +23,21 @@ router.post("/", (req, res) => {
     return res.status(401).json({ error: "No autenticado" });
   }
   const { type, name, breed, age, gender, description, image_url } = req.body;
+  const ageNum = Number(age);
 
   // Validaciones detalladas estilo registro/login
   if (
     !type ||
     !name ||
     !breed ||
-    !age ||
+    !ageNum ||
     !gender ||
     !description ||
     !image_url
   ) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
-  if (typeof age !== "number" || isNaN(age) || age <= 0) {
+  if (typeof ageNum !== "number" || isNaN(ageNum) || ageNum <= 0) {
     return res
       .status(400)
       .json({ error: "La edad debe ser un número mayor que 0" });
@@ -43,7 +45,7 @@ router.post("/", (req, res) => {
   if (!["male", "female"].includes(gender)) {
     return res
       .status(400)
-      .json({ error: "El género debe ser 'Macho' o 'Hembra'" });
+      .json({ error: "El género debe ser 'macho' o 'hembra'" });
   }
   if (typeof name !== "string" || name.length < 2) {
     return res
@@ -66,7 +68,7 @@ router.post("/", (req, res) => {
   const sql = `INSERT INTO animals (type, name, breed, age, gender, description, image_url, owner_id, adopted_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`;
   db.query(
     sql,
-    [type, name, breed, age, gender, description, image_url, owner_id],
+    [type, name, breed, ageNum, gender, description, image_url, owner_id],
     (err, result) => {
       if (err) return res.status(500).json({ error: "Error al donar animal" });
       res.status(201).json({ ok: true, animal_id: result.insertId });
@@ -74,7 +76,61 @@ router.post("/", (req, res) => {
   );
 });
 
-// Obtener animales donados por el usuario autenticado
+// Editar animal
+router.put("/:id", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "No autenticado" });
+  }
+  const animalId = parseInt(req.params.id);
+  const { type, name, breed, age, gender, description, image_url } = req.body;
+  const ageNum = Number(age);
+  db.query(
+    "UPDATE animals SET type=?, name=?, breed=?, age=?, gender=?, description=?, image_url=? WHERE id=? AND owner_id=?",
+    [
+      type,
+      name,
+      breed,
+      ageNum,
+      gender,
+      description,
+      image_url,
+      animalId,
+      req.session.user.id,
+    ],
+    (err, result) => {
+      if (err)
+        return res.status(500).json({ error: "Error al actualizar animal" });
+      if (result.affectedRows === 0)
+        return res
+          .status(404)
+          .json({ error: "Animal no encontrado o no autorizado" });
+      res.json({ ok: true });
+    }
+  );
+});
+
+// Eliminar animal
+router.delete("/:id", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "No autenticado" });
+  }
+  const animalId = parseInt(req.params.id);
+  db.query(
+    "DELETE FROM animals WHERE id=? AND owner_id=?",
+    [animalId, req.session.user.id],
+    (err, result) => {
+      if (err)
+        return res.status(500).json({ error: "Error al eliminar animal" });
+      if (result.affectedRows === 0)
+        return res
+          .status(404)
+          .json({ error: "Animal no encontrado o no autorizado" });
+      res.json({ ok: true });
+    }
+  );
+});
+
+// Obtener animales donados por el usuario autenticado (para el perfil, muestra todos)
 router.get("/my-donated", (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: "No autenticado" });
@@ -88,6 +144,25 @@ router.get("/my-donated", (req, res) => {
         return res
           .status(500)
           .json({ error: "Error al obtener animales donados" });
+      res.json(results);
+    }
+  );
+});
+
+// Obtener animales gestionables por el usuario autenticado (solo no adoptados, para DonnorSection)
+router.get("/my-donated-available", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "No autenticado" });
+  }
+  const userId = req.session.user.id;
+  db.query(
+    "SELECT id, type, name, breed, age, gender, description, image_url, created_at, adopted_by FROM animals WHERE owner_id = ? AND (adopted_by IS NULL OR adopted_by = 0) ORDER BY created_at DESC",
+    [userId],
+    (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ error: "Error al obtener animales gestionables" });
       res.json(results);
     }
   );
