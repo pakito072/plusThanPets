@@ -194,24 +194,24 @@ export default function DonnorSection() {
   };
 
   return (
-    <section className="donar-section" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
+    <section className="donar-section donnor-section-flex">
       <h1 className="section-title">Donar</h1>
       <div
         className="donnor-add-card"
         onClick={() => setShowModal(true)}
       >
-        <span style={{ color: '#a05a2c', fontWeight: 900, fontSize: '1.18rem', textAlign: 'center' }}>Añadir ficha de donación</span>
-        <span className="basil--add-outline" style={{ color: '#a05a2c', marginTop: 8 }} />
+        <span className="donnor-add-card-title">Añadir ficha de donación</span>
+        <span className="basil--add-outline donnor-add-card-icon" />
       </div>
       {/* Grid de animales donados por el usuario */}
-      <div className="adoptar-grid" style={{ marginTop: 32, marginBottom: 24 }}>
+      <div className="adoptar-grid donnor-animal-grid">
         {myDonated.length === 0 ? (
-          <div style={{ gridColumn: '1/-1', color: '#a05a2c', opacity: 0.7, textAlign: 'center', fontWeight: 600, fontSize: '1.1rem', padding: '2em 0' }}>
+          <div className="donnor-empty-msg">
             No has donado ningún animal todavía.
           </div>
         ) : (
           myDonated.map(animal => (
-            <div key={animal.id} className="adoptar-card" style={{ cursor: 'pointer' }} onClick={() => handleEditClick(animal)}>
+            <div key={animal.id} className="adoptar-card donnor-animal-card" onClick={() => handleEditClick(animal)}>
               <img src={animal.image_url} alt={animal.name} className="adoptar-card-img" />
               <div className="adoptar-card-main">
                 <h2 className="adoptar-card-title">{animal.name}</h2>
@@ -225,27 +225,28 @@ export default function DonnorSection() {
       </div>
       <Modal open={showModal} onClose={() => setShowModal(false)}>
         <div className="adoptar-modal-img-col">
-          <label htmlFor="donar-image-input" className="adoptar-modal-img" style={{ background: '#f7e3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+          <label htmlFor="donar-image-input" className="adoptar-modal-img donnor-modal-img-label">
             {form.image_url ? (
               <>
-                <img src={form.image_url} alt="preview" className="adoptar-modal-img" style={{ objectFit: 'cover' }} />
-                <button type="button" aria-label="Eliminar imagen" onClick={() => setForm(f => ({ ...f, image_url: '' }))} style={{ position: 'absolute', top: 6, right: 6, background: '#fff8efcc', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px #a05a2c22', cursor: 'pointer', transition: 'background 0.15s' }}>
-                  <span style={{ color: '#a05a2c', fontSize: 22, fontWeight: 900, lineHeight: 1 }}>×</span>
+                <img src={form.image_url} alt="preview" className="adoptar-modal-img donnor-modal-img-preview" />
+                <button type="button" aria-label="Eliminar imagen" onClick={() => setForm(f => ({ ...f, image_url: '' }))} className="donnor-modal-img-remove-btn">
+                  <span>×</span>
                 </button>
               </>
             ) : (
               <>
-                <span className="icon-park-solid--add" style={{ color: '#a05a2c', fontSize: 38, opacity: 0.7 }} />
-                <span style={{ color: '#a05a2c', fontWeight: 700, fontSize: '0.98rem', marginTop: 8, textAlign: 'center' }}>Subir imagen</span>
+                <span className="icon-park-solid--add donnor-modal-img-addicon" />
+                <span className="donnor-modal-img-addtext">Subir imagen</span>
               </>
             )}
-            <input id="donar-image-input" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+            <input id="donar-image-input" type="file" accept="image/*" onChange={handleFileChange} className="donnor-modal-img-input" />
           </label>
-          {uploading && <p style={{ color: '#a05a2c', fontWeight: 600, fontSize: '0.98rem' }}>Subiendo imagen...</p>}
+          {uploading && <p className="donnor-modal-uploading">Subiendo imagen...</p>}
         </div>
-        <form className="donar-form" onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0, background: 'none', border: 'none', boxShadow: 'none', padding: 0 }}>
-          <div style={{ display: 'flex', flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginBottom: 18 }}>
-            <div style={{ flex: 1, minWidth: 140, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <form className="donar-form donnor-modal-form-flex" onSubmit={handleSubmit}>
+          <div className="donnor-modal-form-row">
+            <div className="donnor-modal-form-col">
+              {/* ...inputs... */}
               <div className="auth-modal-select-wrapper">
                 <select
                   name="type"
@@ -263,7 +264,7 @@ export default function DonnorSection() {
               <input name="name" placeholder="Nombre*" value={form.name} onChange={handleChange} required />
               <input name="breed" placeholder="Raza*" value={form.breed} onChange={handleChange} required />
             </div>
-            <div style={{ flex: 1, minWidth: 140, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="donnor-modal-form-col">
               <input name="age" type="number" min="1" max="30" placeholder="Edad*" value={form.age} onChange={handleChange} required />
               <div className="auth-modal-select-wrapper">
                 <select
@@ -283,11 +284,11 @@ export default function DonnorSection() {
                   </svg>
                 </span>
               </div>
-              <textarea name="description" placeholder="Descripción*" value={form.description} onChange={handleChange} required style={{ resize: 'vertical', minHeight: 38, maxHeight: 90 }} />
+              <textarea name="description" placeholder="Descripción*" value={form.description} onChange={handleChange} required className="donnor-modal-textarea" />
             </div>
           </div>
           {backendError && (
-            <div className="auth-modal-tooltip error" style={{ marginBottom: 8 }}>
+            <div className="auth-modal-tooltip error donnor-modal-error">
               {backendError}
             </div>
           )}
@@ -307,35 +308,35 @@ export default function DonnorSection() {
               Cerrar
             </button>
           </div>
-          {success && <p className="donar-success" style={{ color: '#a05a2c', fontWeight: 700, marginTop: 10 }}>¡Animal donado correctamente!</p>}
+          {success && <p className="donar-success donnor-modal-success">¡Animal donado correctamente!</p>}
         </form>
       </Modal>
       <Modal open={!!editAnimal && !!editForm} onClose={() => setEditAnimal(null)}>
         {editForm && (
           <>
             <div className="adoptar-modal-img-col">
-              <label htmlFor="edit-image-input" className="adoptar-modal-img" style={{ background: '#f7e3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+              <label htmlFor="edit-image-input" className="adoptar-modal-img donnor-modal-img-label">
                 {editForm.image_url ? (
                   <>
-                    <img src={editForm.image_url} alt={editForm.name} className="adoptar-modal-img" style={{ objectFit: 'cover' }} />
-                    <button type="button" aria-label="Eliminar imagen" onClick={e => { e.stopPropagation(); setEditForm(f => ({ ...f, image_url: '' })); }} style={{ position: 'absolute', top: 6, right: 6, background: '#fff8efcc', border: 'none', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px #a05a2c22', cursor: 'pointer', transition: 'background 0.15s' }}>
-                      <span style={{ color: '#a05a2c', fontSize: 22, fontWeight: 900, lineHeight: 1 }}>×</span>
+                    <img src={editForm.image_url} alt={editForm.name} className="adoptar-modal-img donnor-modal-img-preview" />
+                    <button type="button" aria-label="Eliminar imagen" onClick={e => { e.stopPropagation(); setEditForm(f => ({ ...f, image_url: '' })); }} className="donnor-modal-img-remove-btn">
+                      <span>×</span>
                     </button>
                   </>
                 ) : (
                   <>
-                    <span className="icon-park-solid--add" style={{ color: '#a05a2c', fontSize: 38, opacity: 0.7 }} />
-                    <span style={{ color: '#a05a2c', fontWeight: 700, fontSize: '0.98rem', marginTop: 8, textAlign: 'center' }}>Subir imagen</span>
+                    <span className="icon-park-solid--add donnor-modal-img-addicon" />
+                    <span className="donnor-modal-img-addtext">Subir imagen</span>
                   </>
                 )}
-                <input id="edit-image-input" type="file" accept="image/*" onChange={handleEditFileChange} style={{ display: 'none' }} />
+                <input id="edit-image-input" type="file" accept="image/*" onChange={handleEditFileChange} className="donnor-modal-img-input" />
               </label>
-              {editLoading && <p style={{ color: '#a05a2c', fontWeight: 600, fontSize: '0.98rem' }}>Subiendo imagen...</p>}
+              {editLoading && <p className="donnor-modal-uploading">Subiendo imagen...</p>}
               <h2 className="adoptar-modal-animal-name">{editForm.name}</h2>
             </div>
-            <form className="donar-form" onSubmit={handleEditSave} style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0, background: 'none', border: 'none', boxShadow: 'none', padding: 0 }}>
-              <div style={{ display: 'flex', flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginBottom: 18 }}>
-                <div style={{ flex: 1, minWidth: 140, display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <form className="donar-form donnor-modal-form-flex" onSubmit={handleEditSave}>
+              <div className="donnor-modal-form-row">
+                <div className="donnor-modal-form-col">
                   <div className="auth-modal-select-wrapper">
                     <select
                       name="type"
@@ -353,7 +354,7 @@ export default function DonnorSection() {
                   <input name="name" placeholder="Nombre*" value={editForm.name} onChange={handleEditChange} required />
                   <input name="breed" placeholder="Raza*" value={editForm.breed} onChange={handleEditChange} required />
                 </div>
-                <div style={{ flex: 1, minWidth: 140, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div className="donnor-modal-form-col">
                   <input name="age" type="number" min="1" max="30" placeholder="Edad*" value={editForm.age} onChange={handleEditChange} required />
                   <div className="auth-modal-select-wrapper">
                     <select
@@ -373,11 +374,11 @@ export default function DonnorSection() {
                       </svg>
                     </span>
                   </div>
-                  <textarea name="description" placeholder="Descripción*" value={editForm.description} onChange={handleEditChange} required style={{ resize: 'vertical', minHeight: 38, maxHeight: 90 }} />
+                  <textarea name="description" placeholder="Descripción*" value={editForm.description} onChange={handleEditChange} required className="donnor-modal-textarea" />
                 </div>
               </div>
               {editError && (
-                <div className="auth-modal-tooltip error" style={{ marginBottom: 8 }}>
+                <div className="auth-modal-tooltip error donnor-modal-error">
                   {editError}
                 </div>
               )}
@@ -391,8 +392,7 @@ export default function DonnorSection() {
                 </button>
                 <button
                   type="button"
-                  className="adoptar-modal-chat"
-                  style={{ background: '#fff', color: '#a05a2c', border: '1.5px solid #a05a2c' }}
+                  className="adoptar-modal-chat donnor-modal-delete-btn"
                   onClick={handleEditDelete}
                   disabled={deleteLoading}
                 >
