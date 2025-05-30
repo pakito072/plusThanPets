@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import "../index.css";
+import Modal from '../components/Modal';
+import ImageModal from '../components/ImageModal';
 
 const socket = io("http://localhost:5000", { withCredentials: true });
 
@@ -368,14 +370,7 @@ export default function LiveChatSection({ user, chatType }) {
           </div>
         )}
         {!activeChat && <div className="live-chat-placeholder">Selecciona un chat para comenzar.</div>}
-        {/* Modal de imagen ampliada */}
-        {imageModal && (
-          <div className="adoptar-modal-backdrop" style={{ zIndex: 3000 }} onClick={() => setImageModal(null)}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-              <img src={imageModal} alt="Imagen ampliada" style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 18, boxShadow: '0 4px 32px #ffcf8e99' }} onClick={e => e.stopPropagation()} />
-            </div>
-          </div>
-        )}
+        <ImageModal open={!!imageModal} src={imageModal} alt="Imagen ampliada" onClose={() => setImageModal(null)} />
       </div>
     </section>
   );

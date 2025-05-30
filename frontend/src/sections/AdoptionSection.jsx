@@ -1,4 +1,5 @@
 // ...existing code...
+import Modal from '../components/Modal';
 import React, { useState, useEffect } from 'react';
 
 export default function AdoptionSection({ setSection, setChatAnimal }) {
@@ -61,9 +62,9 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
           </div>
         ))}
       </div>
-      {modalAnimal && (
-        <div className="adoptar-modal-backdrop" onClick={() => setModalAnimal(null)}>
-          <div className="adoptar-modal" onClick={e => e.stopPropagation()}>
+      <Modal open={!!modalAnimal} onClose={() => setModalAnimal(null)}>
+        {modalAnimal && (
+          <>
             <div className="adoptar-modal-img-col">
               <img src={modalAnimal.image_url} alt={modalAnimal.name} className="adoptar-modal-img" />
               <h2 className="adoptar-modal-animal-name">{modalAnimal.name}</h2>
@@ -88,9 +89,9 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
               </button>
               <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>Cerrar</button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </section>
   );
 }
