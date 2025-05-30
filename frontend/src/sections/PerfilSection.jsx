@@ -193,7 +193,7 @@ export default function PerfilSection() {
             {adopted.map(animal => (
               <li key={animal.id}>
                 <img src={animal.image_url} alt={animal.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, marginRight: 8, verticalAlign: 'middle' }} />
-                <b>{animal.name}</b> ({animal.type}) - {animal.breed}, {animal.age} años
+                <b>{animal.name}</b> ({animal.type === 'dog' ? 'Perro' : animal.type === 'cat' ? 'Gato' : animal.type}) - {animal.breed}, {animal.age} años
               </li>
             ))}
           </ul>
@@ -208,7 +208,7 @@ export default function PerfilSection() {
             {donated.map(animal => (
               <li key={animal.id}>
                 <img src={animal.image_url} alt={animal.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, marginRight: 8, verticalAlign: 'middle' }} />
-                <b>{animal.name}</b> ({animal.type}) - {animal.breed}, {animal.age} años
+                <b>{animal.name}</b> ({animal.type === 'dog' ? 'Perro' : animal.type === 'cat' ? 'Gato' : animal.type}) - {animal.breed}, {animal.age} años
               </li>
             ))}
           </ul>

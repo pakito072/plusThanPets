@@ -225,16 +225,10 @@ export default function DonnorSection() {
       </div>
       {/* Grid de animales donados por el usuario */}
       <div className="adoptar-grid donnor-animal-grid">
-        {loading ? (
-          <div className="donnor-empty-msg">Cargando tus donaciones...</div>
-        ) : unauthorized ? (
+        { unauthorized ? (
           <div className="donnor-empty-msg error">Debes iniciar sesión para ver tus donaciones.</div>
         ) : error ? (
           <div className="donnor-empty-msg error">{error}</div>
-        ) : myDonated.length === 0 ? (
-          <div className="donnor-empty-msg">
-            No has donado ningún animal todavía.
-          </div>
         ) : (
           myDonated.map(animal => (
             <div key={animal.id} className="adoptar-card donnor-animal-card" onClick={() => handleEditClick(animal)}>
