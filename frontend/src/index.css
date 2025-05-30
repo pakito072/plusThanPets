@@ -1713,6 +1713,7 @@ main {
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  height: 210px;
 }
 .donnor-modal-img-preview {
   object-fit: cover;
@@ -1817,3 +1818,9 @@ main {
   transform: scale(1.04) rotate(-2deg);
 }
 
+.adoptar-modal-info-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1 1 0;
+}

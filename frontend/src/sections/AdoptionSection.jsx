@@ -69,6 +69,7 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
               <img src={modalAnimal.image_url} alt={modalAnimal.name} className="adoptar-modal-img" />
               <h2 className="adoptar-modal-animal-name">{modalAnimal.name}</h2>
             </div>
+            <div className="adoptar-modal-info-wrapper">
             <div className="adoptar-modal-info-cols">
               <div className="adoptar-modal-info-col">
                 <p><b>Tipo:</b> {modalAnimal.type === 'dog' ? 'Perro' : 'Gato'}</p>
@@ -84,10 +85,11 @@ export default function AdoptionSection({ setSection, setChatAnimal }) {
             {chatError && <div className="auth-modal-tooltip error" style={{ margin: '0 auto 1em auto', maxWidth: 400, textAlign: 'center' }}>{chatError}</div>}
             <div className="adoptar-modal-actions">
               <button className="adoptar-modal-chat" onClick={() => handleChat(modalAnimal)}>
-                <span className="material-symbols--chat-outline-rounded" style={{ marginRight: 8, fontSize: 22 }} />
                 Chat
               </button>
-              <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>Cerrar</button>
+              <button className="adoptar-modal-close" onClick={() => setModalAnimal(null)}>
+                Cerrar</button>
+              </div>
             </div>
           </>
         )}
